@@ -573,8 +573,10 @@ def _main(argv: list[str] | None = None) -> int:
         return EXIT_OK
 
     if args.download:
+        sys.stdout.flush()  # keep stdout ahead of the stderr progress bar
         return do_download(pm, planned, args.download)
 
+    sys.stdout.flush()
     return do_play(pm, planned, args)
 
 
