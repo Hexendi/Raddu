@@ -2,6 +2,8 @@
 
 **رَدْدُ — a terminal Quran player with per-reciter voice codes.**
 
+![raddu v1.0.0 playing Surah Al-Ahzaab in the voice of Mishary Rashid al-Afasy](assets/screenshot.png)
+
 Pick a surah, pick a voice, press enter. `raddu` streams the recitation
 straight to your audio player. Every reciter has a short code, every surah
 has a short code, and `raddu -h` lists all of them.
