@@ -26,8 +26,9 @@ This is a thin, honest transport tool:
 * It performs **no text-to-speech, no voice cloning, no re-recitation, and no
   AI of any kind.** Nothing is generated, synthesised, or modified.
 * The text, the reciters, and the surah metadata come from the public
-  [alquran.cloud](https://alquran.cloud) and
-  [mp3quran.net](https://mp3quran.net) APIs; the audio is mp3quran.net's CDN.
+  [alquran.cloud](https://alquran.cloud), [mp3quran.net](https://mp3quran.net)
+  and [Way2Quran](https://way2quran.com) APIs; the audio is served by
+  mp3quran.net and Way2Quran's own CDN.
 * Each surah is served as **one continuous MP3**, so there are no gaps and no
   stitched-ayah seams.
 * Pure Python standard library — **zero dependencies**, nothing to `pip install`.
@@ -168,13 +169,37 @@ lists the styles that do — rather than failing with a 404.
 | `luh` | Muhammad al-Luhaidan | Hafs an Asim | — |
 | `kha` | Mohammad Khalil al-Qari | Hafs an Asim | — |
 
-The default voice is `aft`. Change it:
+### Mauritanian voices
+
+Seven voices from Mauritania, all with the complete 114-surah mushaf. These
+come from [Way2Quran](https://way2quran.com), which tags every reciter with a
+country — so unlike everywhere else the nationality is **published, not
+guessed**. Each carries `nationality: MR` and `raddu -f mauritanian` finds
+them all.
+
+| code | reciter | riwāyah | |
+|---|---|---|---|
+| `bilal` | Al-Nagy Ould Bilal | Qalun an Nafi | 🇲🇷 114/114 |
+| `slmz` | Mohamed Salem Ould Zine | Qalun an Nafi | 🇲🇷 114/114 |
+| `lagh` | Mohamed Laghzaf Ould Mohamed Sidi | Qalun an Nafi | 🇲🇷 114/114 |
+| `shkh` | Sheikhna Ould Al-Hajj | Qalun an Nafi | 🇲🇷 114/114 |
+| `ragl` | Alragel Ould Othman | Warsh an Nafi | 🇲🇷 114/114 |
+| `hsan` | Al-Hassan Ould Habib Allah | Qalun an Nafi | 🇲🇷 114/114 |
+| `mrdo` | Muhammad Al-Rady Ould Amlyeh | Qalun an Nafi | 🇲🇷 114/114 |
 
 ```bash
-raddu --set reciter=hus
-raddu --config
-raddu --set reciter=clear      # back to the built-in default
+raddu -baqara -bilal          # Al-Baqara, Al-Nagy Ould Bilal
+raddu -f mauritanian          # list them
 ```
+
+Two more Mauritanian reciters are on Way2Quran but do not cover the whole
+mushaf, so they are not offered: Mohamed Ould El Salik (22/114) and Mohammed
+Yahya Al Shanqeeti (92/114).
+
+Way2Quran does not zero-pad its filenames consistently — `001.mp3` exists but
+`002.mp3` does not, while `2.mp3` exists but `1.mp3` does not. `raddu`
+therefore scrapes the exact filename per surah with
+`tools/scrape_way2quran.py` instead of constructing a URL.
 
 ### Incomplete recordings
 
@@ -190,6 +215,16 @@ has no other recording - see 'raddu -R' for a reciter that covers all 114.
 
 `haz` is the only one with gaps today (surahs 2, 3, 4, 5, 7, 9, 10, 11, 16, 23,
 24, 26, 27, 28, 33, 48, 56, 58, 59, 60, 62, 64, 65, 66 are absent upstream).
+
+### Choosing a default voice
+
+The default voice is `aft`. Change it:
+
+```bash
+raddu --set reciter=hus
+raddu --config
+raddu --set reciter=clear      # back to the built-in default
+```
 
 ---
 
@@ -288,12 +323,13 @@ src/raddu/
   cli.py               argument parsing, planning, dispatch
   catalog.py           surah/reciter lookup and URL resolution
   data/surahs.json     114 surahs + 448 aliases
-  data/reciters.json   13 voices + 25 recitation styles
+  data/reciters.json   20 voices + 32 recitation styles
   net.py               HTTP streaming and probing
   player.py            player detection and playback
   ui.py                colours, tables, progress bar
   config.py            ~/.config/raddu/config.json
 tools/sync_catalog.py  regenerates the JSON data from the upstream APIs
+tools/scrape_way2quran.py  caches Way2Quran reciter pages (nationality + filenames)
 tools/cache/           raw upstream API dumps
 tests/smoke.sh         offline + online smoke tests
 ```
@@ -324,7 +360,8 @@ tests/smoke.sh --offline    # skip network tests
 
 ## Credits
 
-* Recitation audio and surah listings: [mp3quran.net](https://mp3quran.net)
+* Recitation audio and surah listings: [mp3quran.net](https://mp3quran.net),
+  [Way2Quran](https://way2quran.com)
 * Surah metadata: [alquran.cloud](https://alquran.cloud)
 * Credit goes to every reciter named above, and to the many people who
   recorded, digitised and hosted these recitations. May it be accepted.
