@@ -431,22 +431,22 @@ def do_download(pm: ui.Palette, planned: list, dest: str) -> int:
     failures = 0
     for i, track in enumerate(planned, 1):
         dest_file = out / track.filename
-        bar = ui.ProgressBar(f"[{i}/{len(planned)}] {track.surah.slug}")
+        radio = ui.Radio()
         print(f"  {pm(track.describe(), 'bold')}")
         try:
             with open(dest_file, "wb") as fh:
-                net.download(track.url, fh, timeout=90.0, on_chunk=bar.advance)
+                net.download(track.url, fh, timeout=90.0, on_chunk=radio.advance)
             print(f"  {pm('saved', 'green')} {dest_file} "
                   f"{pm(ui.human_size(dest_file.stat().st_size), 'grey')}")
         except KeyboardInterrupt:
-            bar.stop()
+            radio.stop()
             dest_file.unlink(missing_ok=True)
             raise
         except (net.NetworkError, OSError) as exc:
             print(f"  {pm('FAILED', 'red')} {exc}")
             failures += 1
         finally:
-            bar.stop()
+            radio.stop()
     return EXIT_FAIL if failures else EXIT_OK
 
 
@@ -465,9 +465,10 @@ def do_play(pm: ui.Palette, planned: list, args) -> int:
         if not args.no_banner:
             describe_track(pm, track)
         print()
-        bar = ui.ProgressBar(f"{track.surah.slug} - {track.reciter.code}")
+        radio = ui.Radio()
         try:
-            with player_mod.Session(spec, on_total=bar.start, on_chunk=bar.advance) as s:
+            with player_mod.Session(spec, on_total=radio.start,
+                                     on_chunk=radio.advance) as s:
                 s.play(track.url, timeout=args.timeout)
             print(pm("  done.", "brand"))
         except KeyboardInterrupt:
@@ -477,7 +478,7 @@ def do_play(pm: ui.Palette, planned: list, args) -> int:
             print(pm(f"  error: {exc}", "red"))
             failures += 1
         finally:
-            bar.stop()
+            radio.stop()
     return EXIT_FAIL if failures else EXIT_OK
 
 
