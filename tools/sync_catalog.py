@@ -151,6 +151,75 @@ RECITERS: dict[str, dict] = {
     },
 }
 
+# ---------------------------------------------------------------------------
+# Way2Quran voices.
+#
+# mp3quran.net records no nationality, so the Mauritanian voices could only
+# ever be guessed from a name. Way2Quran tags every reciter with a country,
+# which makes these verifiable rather than assumed - each carries nationality
+# "MR" as published on its own page.
+#
+# Their filenames are not uniformly zero-padded, so tools/scrape_way2quran.py
+# caches the exact basename per surah and it is carried through here.
+# ---------------------------------------------------------------------------
+WAY2QURAN: dict[str, dict] = {
+    "bilal": {
+        "source": "way2quran_al-nagy-wild-bilal_qalun-an-nafi",
+        "name_en": "Al-Nagy Ould Bilal",
+        "name_ar": "الناجي ولد بلال",
+        "style": "qalun",
+        "codes": ["bil", "bilal", "naji", "najy", "al-nagy", "nagy-bilal", "ouldbilal"],
+    },
+    "slmz": {
+        "source": "way2quran_mohamed-salem-ould-zine_qalun-an-nafi",
+        "name_en": "Mohamed Salem Ould Zine",
+        "name_ar": "محمد سالم ولد زين",
+        "style": "qalun",
+        "codes": ["slmz", "slm", "zine", "salem", "salemzine", "mohamedsalem"],
+    },
+    "lagh": {
+        "source": "way2quran_mohamed-laghzaf-weld-mohamed-sidi_qalun-an-nafi",
+        "name_en": "Mohamed Laghzaf Ould Mohamed Sidi",
+        "name_ar": "محمد لغظف ولد محمد سيدي",
+        "style": "qalun",
+        "codes": ["lagh", "laghzaf", "lagdav", "laghzafe", "mohamedlaghzaf"],
+    },
+    "shkh": {
+        "source": "way2quran_sheikhna-ould-al-hajj_qalun-an-nafi",
+        "name_en": "Sheikhna Ould Al-Hajj",
+        "name_ar": "شيخناولد الحاج",
+        "style": "qalun",
+        "codes": ["shkh", "sheikhna", "ouldalhajj", "al-hajj-mr"],
+    },
+    "ragl": {
+        "source": "way2quran_alragel-ould-othman_warsh-an-nafi",
+        "name_en": "Alragel Ould Othman",
+        "name_ar": "الراجل ولد عثمان",
+        "style": "warsh",
+        "codes": ["ragl", "ragel", "othman", "amroul", "alragel", "mr-othman"],
+    },
+    "hsan": {
+        "source": "way2quran_al-hassan-wld-hbyb-al-lh_qalun-an-nafi",
+        "name_en": "Al-Hassan Ould Habib Allah",
+        "name_ar": "الحسن ولد حبيب الله",
+        "style": "qalun",
+        "codes": ["hsan", "hassan", "habiballah", "al-hassan-mr"],
+    },
+    "mrdo": {
+        "source": "way2quran_muhammad-al-rady-wld-amlyh_qalun-an-nafi",
+        "name_en": "Muhammad Al-Rady Ould Amlyeh",
+        "name_ar": "محمد الراضي ولد امليح",
+        "style": "qalun",
+        "codes": ["mrdo", "rady", "amlyeh", "mr-al-rady"],
+    },
+}
+
+RIWAYA_LABEL = {
+    "hafs": ("حفص عن عاصم", "Hafs an Asim"),
+    "warsh": ("ورش عن نافع", "Warsh an Nafi"),
+    "qalun": ("قالون عن نافع", "Qalun an Nafi"),
+}
+
 # Style-code -> human label (Arabic + English).
 STYLE_LABEL = {
     "hafs": ("حفص عن عاصم", "Hafs an Asim"),
@@ -374,6 +443,35 @@ def build_reciters() -> list[dict]:
             "default_label_en": default["label_en"],
             "codes": sorted({code, *spec["codes"]}),
             "styles": styles,
+            "nationality": None,
+            "source": "mp3quran.net",
+        })
+
+    for code, spec in WAY2QURAN.items():
+        path = CACHE / f"{spec['source']}.json"
+        if not path.exists():
+            raise SystemExit(f"missing {path}\nrun: python3 tools/scrape_way2quran.py")
+        w = json.loads(path.read_text())
+        label = spec["style"]
+        out.append({
+            "code": code,
+            "name_ar": spec["name_ar"],
+            "name_en": spec["name_en"],
+            "default_style": label,
+            "default_label_en": RIWAYA_LABEL[label][1],
+            "codes": sorted({code, *spec["codes"]}),
+            "styles": [{
+                "code": label,
+                "moshaf_id": 0,
+                "server": w["server"],
+                "label_ar": RIWAYA_LABEL[label][0],
+                "label_en": RIWAYA_LABEL[label][1],
+                "surah_count": w["surah_count"],
+                "missing": w["missing"],
+                "files": w["files"],
+            }],
+            "nationality": w.get("nationality"),
+            "source": "way2quran.com",
         })
     return out
 
