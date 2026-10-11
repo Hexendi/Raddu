@@ -1,0 +1,483 @@
+[
+ {
+  "code": "sud",
+  "name_ar": "عبدالرحمن السديس",
+  "name_en": "Abdur-Rahman as-Sudais",
+  "default_style": "hafs",
+  "default_label_en": "Hafs an Asim",
+  "codes": [
+   "abdulrahman",
+   "abdulrahman-sudais",
+   "as-sudais",
+   "sud",
+   "sudais",
+   "sudais84"
+  ],
+  "styles": [
+   {
+    "code": "hafs",
+    "moshaf_id": 54,
+    "server": "https://cdn.mp3quran.net/audio/abdulrahman-sudais/r1/",
+    "label_ar": "حفص عن عاصم",
+    "label_en": "Hafs an Asim",
+    "surah_count": 114,
+    "missing": []
+   }
+  ]
+ },
+ {
+  "code": "hus",
+  "name_ar": "محمود خليل الحصري",
+  "name_en": "Mahmoud Khalil al-Husary",
+  "default_style": "hafs",
+  "default_label_en": "Hafs an Asim",
+  "codes": [
+   "al-husary",
+   "alhussary",
+   "hus",
+   "husary",
+   "husarymujawwad",
+   "husm",
+   "hussary"
+  ],
+  "styles": [
+   {
+    "code": "hafs",
+    "moshaf_id": 118,
+    "server": "https://cdn.mp3quran.net/audio/mahmoud-husary/r1/",
+    "label_ar": "حفص عن عاصم",
+    "label_en": "Hafs an Asim",
+    "surah_count": 114,
+    "missing": []
+   },
+   {
+    "code": "mujawwad",
+    "moshaf_id": 119,
+    "server": "https://cdn.mp3quran.net/audio/mahmoud-husary/r2/",
+    "label_ar": "مجوّد",
+    "label_en": "Mujawwad",
+    "surah_count": 114,
+    "missing": []
+   },
+   {
+    "code": "qalun",
+    "moshaf_id": 270,
+    "server": "https://cdn.mp3quran.net/audio/mahmoud-husary/r5/",
+    "label_ar": "قالون عن نافع",
+    "label_en": "Qalun an Nafi",
+    "surah_count": 114,
+    "missing": []
+   },
+   {
+    "code": "warsh",
+    "moshaf_id": 120,
+    "server": "https://cdn.mp3quran.net/audio/mahmoud-husary/r3/",
+    "label_ar": "ورش عن نافع",
+    "label_en": "Warsh an Nafi",
+    "surah_count": 114,
+    "missing": []
+   },
+   {
+    "code": "doori",
+    "moshaf_id": 269,
+    "server": "https://cdn.mp3quran.net/audio/mahmoud-husary/r4/",
+    "label_ar": "الدوري عن أبي عمرو",
+    "label_en": "ad-Doori from Abu Amr",
+    "surah_count": 114,
+    "missing": []
+   }
+  ]
+ },
+ {
+  "code": "abs",
+  "name_ar": "عبدالباسط عبدالصمد",
+  "name_en": "Abdul Basit Abdus-Samad",
+  "default_style": "mujawwad",
+  "default_label_en": "Mujawwad",
+  "codes": [
+   "abdulbasit",
+   "abdulbasit-abdulsamad",
+   "abdulbasitabdusamad",
+   "abs",
+   "absm",
+   "basit"
+  ],
+  "styles": [
+   {
+    "code": "mujawwad",
+    "moshaf_id": 51,
+    "server": "https://cdn.mp3quran.net/audio/abdulbasit-abdulsamad/r1/",
+    "label_ar": "مجوّد",
+    "label_en": "Mujawwad",
+    "surah_count": 114,
+    "missing": []
+   },
+   {
+    "code": "hafs",
+    "moshaf_id": 53,
+    "server": "https://cdn.mp3quran.net/audio/abdulbasit-abdulsamad/r3/",
+    "label_ar": "حفص عن عاصم",
+    "label_en": "Hafs an Asim",
+    "surah_count": 114,
+    "missing": []
+   },
+   {
+    "code": "warsh",
+    "moshaf_id": 52,
+    "server": "https://cdn.mp3quran.net/audio/abdulbasit-abdulsamad/r2/",
+    "label_ar": "ورش عن نافع",
+    "label_en": "Warsh an Nafi",
+    "surah_count": 114,
+    "missing": []
+   }
+  ]
+ },
+ {
+  "code": "shr",
+  "name_ar": "سعود الشريم",
+  "name_en": "Saud ash-Shuraim",
+  "default_style": "hafs",
+  "default_label_en": "Hafs an Asim",
+  "codes": [
+   "ash-shuraim",
+   "saud",
+   "shr",
+   "shuraim",
+   "shuraimhafs",
+   "shuraym"
+  ],
+  "styles": [
+   {
+    "code": "hafs",
+    "moshaf_id": 31,
+    "server": "https://cdn.mp3quran.net/audio/saud-shuraim/r1/",
+    "label_ar": "حفص عن عاصم",
+    "label_en": "Hafs an Asim",
+    "surah_count": 114,
+    "missing": []
+   }
+  ]
+ },
+ {
+  "code": "aft",
+  "name_ar": "مشاري العفاسي",
+  "name_en": "Mishary Rashid al-Afasy",
+  "default_style": "hafs",
+  "default_label_en": "Hafs an Asim",
+  "codes": [
+   "afasy",
+   "aft",
+   "alafasy",
+   "alafasy128",
+   "alafasyhafs",
+   "mishary"
+  ],
+  "styles": [
+   {
+    "code": "hafs",
+    "moshaf_id": 123,
+    "server": "https://cdn.mp3quran.net/audio/mishary-alafasy/r1/",
+    "label_ar": "حفص عن عاصم",
+    "label_en": "Hafs an Asim",
+    "surah_count": 114,
+    "missing": []
+   },
+   {
+    "code": "kisaai",
+    "moshaf_id": 124,
+    "server": "https://cdn.mp3quran.net/audio/mishary-alafasy/r2/",
+    "label_ar": "الدوري عن الكسائي",
+    "label_en": "ad-Doori from al-Kisa'i",
+    "surah_count": 6,
+    "missing": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     13,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49,
+     50,
+     51,
+     52,
+     53,
+     54,
+     55,
+     56,
+     57,
+     58,
+     59,
+     60,
+     61,
+     62,
+     63,
+     64,
+     65,
+     66,
+     67,
+     68,
+     69,
+     70,
+     71,
+     72,
+     73,
+     74,
+     75,
+     76,
+     77,
+     78,
+     79,
+     80,
+     81,
+     82,
+     83,
+     84,
+     85,
+     86,
+     88,
+     89,
+     90,
+     91,
+     92,
+     93,
+     94,
+     95,
+     96,
+     98,
+     100,
+     101,
+     102,
+     103,
+     104,
+     105,
+     106,
+     107,
+     108,
+     109,
+     110,
+     111,
+     112,
+     113,
+     114
+    ]
+   }
+  ]
+ },
+ {
+  "code": "sha",
+  "name_ar": "أبو بكر الشاطري",
+  "name_en": "Abu Bakr ash-Shatri",
+  "default_style": "hafs",
+  "default_label_en": "Hafs an Asim",
+  "codes": [
+   "abubakr",
+   "abubakr-shatri",
+   "abubakralshatri",
+   "sha",
+   "shatree",
+   "shatri"
+  ],
+  "styles": [
+   {
+    "code": "hafs",
+    "moshaf_id": 4,
+    "server": "https://cdn.mp3quran.net/audio/abubakr-shatri/r1/",
+    "label_ar": "حفص عن عاصم",
+    "label_en": "Hafs an Asim",
+    "surah_count": 114,
+    "missing": []
+   }
+  ]
+ },
+ {
+  "code": "min",
+  "name_ar": "محمد صديق المنشاوي",
+  "name_en": "Muhammad Siddiq al-Minshawi",
+  "default_style": "mujawwad",
+  "default_label_en": "Mujawwad",
+  "codes": [
+   "alminshawi",
+   "min",
+   "minm",
+   "mins",
+   "minshawi",
+   "minshawi-mujawwad"
+  ],
+  "styles": [
+   {
+    "code": "mujawwad",
+    "moshaf_id": 113,
+    "server": "https://cdn.mp3quran.net/audio/muhammad-minshawi/r2/",
+    "label_ar": "مجوّد",
+    "label_en": "Mujawwad",
+    "surah_count": 114,
+    "missing": []
+   },
+   {
+    "code": "hafs",
+    "moshaf_id": 112,
+    "server": "https://cdn.mp3quran.net/audio/muhammad-minshawi/r1/",
+    "label_ar": "حفص عن عاصم",
+    "label_en": "Hafs an Asim",
+    "surah_count": 114,
+    "missing": []
+   },
+   {
+    "code": "archive",
+    "moshaf_id": 10924,
+    "server": "https://cdn.mp3quran.net/audio/muhammad-minshawi/r4/",
+    "label_ar": "تسجيل قديم",
+    "label_en": "Archival recording",
+    "surah_count": 110,
+    "missing": [
+     16,
+     23,
+     24,
+     35
+    ]
+   }
+  ]
+ },
+ {
+  "code": "mui",
+  "name_ar": "ماهر المعيقلي",
+  "name_en": "Maher al-Muaiqly",
+  "default_style": "mujawwad",
+  "default_label_en": "Mujawwad",
+  "codes": [
+   "maher",
+   "mahermuaiqly",
+   "muaiqly",
+   "muaiqly-mujawwad",
+   "mui",
+   "muim"
+  ],
+  "styles": [
+   {
+    "code": "mujawwad",
+    "moshaf_id": 133,
+    "server": "https://cdn.mp3quran.net/audio/maher-muaiqly/r3/",
+    "label_ar": "مجوّد",
+    "label_en": "Mujawwad",
+    "surah_count": 114,
+    "missing": []
+   },
+   {
+    "code": "hafs",
+    "moshaf_id": 102,
+    "server": "https://cdn.mp3quran.net/audio/maher-muaiqly/r1/",
+    "label_ar": "حفص عن عاصم",
+    "label_en": "Hafs an Asim",
+    "surah_count": 114,
+    "missing": []
+   }
+  ]
+ },
+ {
+  "code": "ajm",
+  "name_ar": "أحمد بن علي العجمي",
+  "name_en": "Ahmad ibn Ali al-Ajmi",
+  "default_style": "hafs",
+  "default_label_en": "Hafs an Asim",
+  "codes": [
+   "ahmad-ajmi",
+   "ahmadajmi",
+   "ajm",
+   "ajmi",
+   "alajmi"
+  ],
+  "styles": [
+   {
+    "code": "hafs",
+    "moshaf_id": 5,
+    "server": "https://cdn.mp3quran.net/audio/ahmad-ajmi/r1/",
+    "label_ar": "حفص عن عاصم",
+    "label_en": "Hafs an Asim",
+    "surah_count": 114,
+    "missing": []
+   }
+  ]
+ },
+ {
+  "code": "hud",
+  "name_ar": "علي بن عبدالرحمن الحذيفي",
+  "name_en": "Ali Abdur-Rahman al-Hudhaify",
+  "default_style": "hafs",
+  "default_label_en": "Hafs an Asim",
+  "codes": [
+   "alhudhaify",
+   "ali-hudhaify",
+   "hud",
+   "hudhaify",
+   "huthaify"
+  ],
+  "styles": [
+   {
+    "code": "hafs",
+    "moshaf_id": 74,
+    "server": "https://cdn.mp3quran.net/audio/ali-hudhaifi/r1/",
+    "label_ar": "حفص عن عاصم",
+    "label_en": "Hafs an Asim",
+    "surah_count": 114,
+    "missing": []
+   },
+   {
+    "code": "qalun",
+    "moshaf_id": 75,
+    "server": "https://cdn.mp3quran.net/audio/ali-hudhaifi/r2/",
+    "label_ar": "قالون عن نافع",
+    "label_en": "Qalun an Nafi",
+    "surah_count": 114,
+    "missing": []
+   },
+   {
+    "code": "shubah",
+    "moshaf_id": 305,
+    "server": "https://cdn.mp3quran.net/audio/ali-hudhaifi/r3/",
+    "label_ar": "شعبة عن عاصم",
+    "label_en": "Shu'bah from Asim",
+    "surah_count": 114,
+    "missing": []
+   }
+  ]
+ }
+]

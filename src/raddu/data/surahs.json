@@ -1,0 +1,1704 @@
+[
+ {
+  "number": 1,
+  "slug": "faatiha",
+  "name_ar": "الفاتحة",
+  "name_en": "Al-Faatiha",
+  "meaning_en": "The Opening",
+  "ayahs": 7,
+  "revelation": "meccan",
+  "aliases": [
+   "al-faatiha",
+   "alfatiha",
+   "faatiha",
+   "fatiha",
+   "fatihah",
+   "opening"
+  ]
+ },
+ {
+  "number": 2,
+  "slug": "baqara",
+  "name_ar": "البقرة",
+  "name_en": "Al-Baqara",
+  "meaning_en": "The Cow",
+  "ayahs": 286,
+  "revelation": "medinan",
+  "aliases": [
+   "al-baqara",
+   "albaqara",
+   "baqara",
+   "baqarah",
+   "cow"
+  ]
+ },
+ {
+  "number": 3,
+  "slug": "imraan",
+  "name_ar": "آل عمران",
+  "name_en": "Aal-i-Imraan",
+  "meaning_en": "The Family of Imraan",
+  "ayahs": 200,
+  "revelation": "medinan",
+  "aliases": [
+   "aal-i-imraan",
+   "aalimran",
+   "al-imran",
+   "alimran",
+   "familyofimran",
+   "imraan",
+   "imran"
+  ]
+ },
+ {
+  "number": 4,
+  "slug": "nisaa",
+  "name_ar": "النساء",
+  "name_en": "An-Nisaa",
+  "meaning_en": "The Women",
+  "ayahs": 176,
+  "revelation": "medinan",
+  "aliases": [
+   "alnisaa",
+   "an-nisaa",
+   "nisa",
+   "nisaa",
+   "women"
+  ]
+ },
+ {
+  "number": 5,
+  "slug": "maaida",
+  "name_ar": "المائدة",
+  "name_en": "Al-Maaida",
+  "meaning_en": "The Table",
+  "ayahs": 120,
+  "revelation": "medinan",
+  "aliases": [
+   "al-maaida",
+   "almaaida",
+   "maaida",
+   "maidah",
+   "table"
+  ]
+ },
+ {
+  "number": 6,
+  "slug": "anam",
+  "name_ar": "الأنعام",
+  "name_en": "Al-An'aam",
+  "meaning_en": "The Cattle",
+  "ayahs": 165,
+  "revelation": "meccan",
+  "aliases": [
+   "al-anaam",
+   "alanam",
+   "an6am",
+   "anaaam",
+   "anaam",
+   "anam",
+   "cattle"
+  ]
+ },
+ {
+  "number": 7,
+  "slug": "araaf",
+  "name_ar": "الأعراف",
+  "name_en": "Al-A'raaf",
+  "meaning_en": "The Heights",
+  "ayahs": 206,
+  "revelation": "meccan",
+  "aliases": [
+   "aeraaf",
+   "al-araaf",
+   "araaf",
+   "araf",
+   "heights"
+  ]
+ },
+ {
+  "number": 8,
+  "slug": "anfaal",
+  "name_ar": "الأنفال",
+  "name_en": "Al-Anfaal",
+  "meaning_en": "The Spoils of War",
+  "ayahs": 75,
+  "revelation": "medinan",
+  "aliases": [
+   "al-anfaal",
+   "alanfaal",
+   "anfaal",
+   "anfal",
+   "spoils"
+  ]
+ },
+ {
+  "number": 9,
+  "slug": "tawba",
+  "name_ar": "التوبة",
+  "name_en": "At-Tawba",
+  "meaning_en": "The Repentance",
+  "ayahs": 129,
+  "revelation": "medinan",
+  "aliases": [
+   "at-tawba",
+   "attooba",
+   "repentance",
+   "tawba",
+   "tawbah"
+  ]
+ },
+ {
+  "number": 10,
+  "slug": "yunus",
+  "name_ar": "يونس",
+  "name_en": "Yunus",
+  "meaning_en": "Jonas",
+  "ayahs": 109,
+  "revelation": "meccan",
+  "aliases": [
+   "atyunus",
+   "jonah",
+   "younus",
+   "yunus"
+  ]
+ },
+ {
+  "number": 11,
+  "slug": "hud",
+  "name_ar": "هود",
+  "name_en": "Hud",
+  "meaning_en": "Hud",
+  "ayahs": 123,
+  "revelation": "meccan",
+  "aliases": [
+   "al-hud",
+   "alhud",
+   "hud",
+   "hudhud"
+  ]
+ },
+ {
+  "number": 12,
+  "slug": "yusuf",
+  "name_ar": "يوسف",
+  "name_en": "Yusuf",
+  "meaning_en": "Joseph",
+  "ayahs": 111,
+  "revelation": "meccan",
+  "aliases": [
+   "ayyusuf",
+   "joseph",
+   "yousef",
+   "yusuf"
+  ]
+ },
+ {
+  "number": 13,
+  "slug": "raad",
+  "name_ar": "الرعد",
+  "name_en": "Ar-Ra'd",
+  "meaning_en": "The Thunder",
+  "ayahs": 43,
+  "revelation": "medinan",
+  "aliases": [
+   "ar-rad",
+   "arrad",
+   "raad",
+   "rad",
+   "thunder"
+  ]
+ },
+ {
+  "number": 14,
+  "slug": "ibrahim",
+  "name_ar": "إبراهيم",
+  "name_en": "Ibrahim",
+  "meaning_en": "Abraham",
+  "ayahs": 52,
+  "revelation": "meccan",
+  "aliases": [
+   "abraham",
+   "ibraheem",
+   "ibrahim"
+  ]
+ },
+ {
+  "number": 15,
+  "slug": "hijr",
+  "name_ar": "الحجر",
+  "name_en": "Al-Hijr",
+  "meaning_en": "The Rock",
+  "ayahs": 99,
+  "revelation": "meccan",
+  "aliases": [
+   "al-hijr",
+   "hijr",
+   "rock",
+   "the-rock"
+  ]
+ },
+ {
+  "number": 16,
+  "slug": "nahl",
+  "name_ar": "النحل",
+  "name_en": "An-Nahl",
+  "meaning_en": "The Bee",
+  "ayahs": 128,
+  "revelation": "meccan",
+  "aliases": [
+   "an-nahl",
+   "bee",
+   "nahl",
+   "the-bee"
+  ]
+ },
+ {
+  "number": 17,
+  "slug": "israa",
+  "name_ar": "الإسراء",
+  "name_en": "Al-Israa",
+  "meaning_en": "The Night Journey",
+  "ayahs": 111,
+  "revelation": "meccan",
+  "aliases": [
+   "al-israa",
+   "alisra",
+   "isra",
+   "israa",
+   "night-journey"
+  ]
+ },
+ {
+  "number": 18,
+  "slug": "kahf",
+  "name_ar": "الكهف",
+  "name_en": "Al-Kahf",
+  "meaning_en": "The Cave",
+  "ayahs": 110,
+  "revelation": "meccan",
+  "aliases": [
+   "al-kahf",
+   "alkahf",
+   "cave",
+   "kahf",
+   "the-cave"
+  ]
+ },
+ {
+  "number": 19,
+  "slug": "maryam",
+  "name_ar": "مريم",
+  "name_en": "Maryam",
+  "meaning_en": "Mary",
+  "ayahs": 98,
+  "revelation": "meccan",
+  "aliases": [
+   "mary",
+   "maryam"
+  ]
+ },
+ {
+  "number": 20,
+  "slug": "taha",
+  "name_ar": "طه",
+  "name_en": "Taa-Haa",
+  "meaning_en": "Taa-Haa",
+  "ayahs": 135,
+  "revelation": "meccan",
+  "aliases": [
+   "ta-ha",
+   "taa-haa",
+   "taaha",
+   "taha"
+  ]
+ },
+ {
+  "number": 21,
+  "slug": "anbiyaa",
+  "name_ar": "الأنبياء",
+  "name_en": "Al-Anbiyaa",
+  "meaning_en": "The Prophets",
+  "ayahs": 112,
+  "revelation": "meccan",
+  "aliases": [
+   "al-anbiyaa",
+   "alanbiyaa",
+   "anbiyaa",
+   "anbya",
+   "prophets"
+  ]
+ },
+ {
+  "number": 22,
+  "slug": "hajj",
+  "name_ar": "الحج",
+  "name_en": "Al-Hajj",
+  "meaning_en": "The Pilgrimage",
+  "ayahs": 78,
+  "revelation": "medinan",
+  "aliases": [
+   "al-hajj",
+   "hajj",
+   "pilgrimage",
+   "the-pilgrimage"
+  ]
+ },
+ {
+  "number": 23,
+  "slug": "muminun",
+  "name_ar": "المؤمنون",
+  "name_en": "Al-Muminoon",
+  "meaning_en": "The Believers",
+  "ayahs": 118,
+  "revelation": "meccan",
+  "aliases": [
+   "al-muminoon",
+   "almuminun",
+   "believers",
+   "mominun",
+   "muminoon",
+   "muminun"
+  ]
+ },
+ {
+  "number": 24,
+  "slug": "noor",
+  "name_ar": "النور",
+  "name_en": "An-Noor",
+  "meaning_en": "The Light",
+  "ayahs": 64,
+  "revelation": "medinan",
+  "aliases": [
+   "an-noor",
+   "light",
+   "noor",
+   "nur"
+  ]
+ },
+ {
+  "number": 25,
+  "slug": "furqan",
+  "name_ar": "الفرقان",
+  "name_en": "Al-Furqaan",
+  "meaning_en": "The Criterion",
+  "ayahs": 77,
+  "revelation": "meccan",
+  "aliases": [
+   "al-furqaan",
+   "criterion",
+   "forqan",
+   "furqaan",
+   "furqan"
+  ]
+ },
+ {
+  "number": 26,
+  "slug": "shuaraa",
+  "name_ar": "الشعراء",
+  "name_en": "Ash-Shu'araa",
+  "meaning_en": "The Poets",
+  "ayahs": 227,
+  "revelation": "meccan",
+  "aliases": [
+   "ash-shuaraa",
+   "poets",
+   "shuara",
+   "shuaraa"
+  ]
+ },
+ {
+  "number": 27,
+  "slug": "naml",
+  "name_ar": "النمل",
+  "name_en": "An-Naml",
+  "meaning_en": "The Ant",
+  "ayahs": 93,
+  "revelation": "meccan",
+  "aliases": [
+   "an-naml",
+   "ant",
+   "naml",
+   "the-ant"
+  ]
+ },
+ {
+  "number": 28,
+  "slug": "qasas",
+  "name_ar": "القصص",
+  "name_en": "Al-Qasas",
+  "meaning_en": "The Stories",
+  "ayahs": 88,
+  "revelation": "meccan",
+  "aliases": [
+   "al-qasas",
+   "alqasas",
+   "qasas",
+   "stories"
+  ]
+ },
+ {
+  "number": 29,
+  "slug": "ankaboot",
+  "name_ar": "العنكبوت",
+  "name_en": "Al-Ankaboot",
+  "meaning_en": "The Spider",
+  "ayahs": 69,
+  "revelation": "meccan",
+  "aliases": [
+   "al-ankaboot",
+   "ankaboot",
+   "spider",
+   "the-spider"
+  ]
+ },
+ {
+  "number": 30,
+  "slug": "room",
+  "name_ar": "الروم",
+  "name_en": "Ar-Room",
+  "meaning_en": "The Romans",
+  "ayahs": 60,
+  "revelation": "meccan",
+  "aliases": [
+   "ar-room",
+   "arroom",
+   "romans",
+   "room",
+   "rum"
+  ]
+ },
+ {
+  "number": 31,
+  "slug": "luqman",
+  "name_ar": "لقمان",
+  "name_en": "Luqman",
+  "meaning_en": "Luqman",
+  "ayahs": 34,
+  "revelation": "meccan",
+  "aliases": [
+   "lokman",
+   "luqman"
+  ]
+ },
+ {
+  "number": 32,
+  "slug": "sajda",
+  "name_ar": "السجدة",
+  "name_en": "As-Sajda",
+  "meaning_en": "The Prostration",
+  "ayahs": 30,
+  "revelation": "meccan",
+  "aliases": [
+   "as-sajda",
+   "prostration",
+   "sajda",
+   "sajdah"
+  ]
+ },
+ {
+  "number": 33,
+  "slug": "ahzaab",
+  "name_ar": "الأحزاب",
+  "name_en": "Al-Ahzaab",
+  "meaning_en": "The Clans",
+  "ayahs": 73,
+  "revelation": "medinan",
+  "aliases": [
+   "ahzaab",
+   "ahzab",
+   "al-ahzaab",
+   "clans"
+  ]
+ },
+ {
+  "number": 34,
+  "slug": "saba",
+  "name_ar": "سبأ",
+  "name_en": "Saba",
+  "meaning_en": "Sheba",
+  "ayahs": 54,
+  "revelation": "meccan",
+  "aliases": [
+   "saba",
+   "seba",
+   "sheba"
+  ]
+ },
+ {
+  "number": 35,
+  "slug": "faatir",
+  "name_ar": "فاطر",
+  "name_en": "Faatir",
+  "meaning_en": "The Originator",
+  "ayahs": 45,
+  "revelation": "meccan",
+  "aliases": [
+   "faatir",
+   "fatir",
+   "originator"
+  ]
+ },
+ {
+  "number": 36,
+  "slug": "yaseen",
+  "name_ar": "يس",
+  "name_en": "Yaseen",
+  "meaning_en": "Yaseen",
+  "ayahs": 83,
+  "revelation": "meccan",
+  "aliases": [
+   "ya-sin",
+   "yaseen",
+   "yasin"
+  ]
+ },
+ {
+  "number": 37,
+  "slug": "saaffaat",
+  "name_ar": "الصافات",
+  "name_en": "As-Saaffaat",
+  "meaning_en": "Those drawn up in Ranks",
+  "ayahs": 182,
+  "revelation": "meccan",
+  "aliases": [
+   "as-saaffaat",
+   "saaffaat",
+   "saaffat",
+   "safafat"
+  ]
+ },
+ {
+  "number": 38,
+  "slug": "saad",
+  "name_ar": "ص",
+  "name_en": "Saad",
+  "meaning_en": "The letter Saad",
+  "ayahs": 88,
+  "revelation": "meccan",
+  "aliases": [
+   "saad",
+   "sad",
+   "the-letter-sad"
+  ]
+ },
+ {
+  "number": 39,
+  "slug": "zumar",
+  "name_ar": "الزمر",
+  "name_en": "Az-Zumar",
+  "meaning_en": "The Groups",
+  "ayahs": 75,
+  "revelation": "meccan",
+  "aliases": [
+   "az-zumar",
+   "groups",
+   "zumar",
+   "zumarr"
+  ]
+ },
+ {
+  "number": 40,
+  "slug": "ghafir",
+  "name_ar": "غافر",
+  "name_en": "Ghafir",
+  "meaning_en": "The Forgiver",
+  "ayahs": 85,
+  "revelation": "meccan",
+  "aliases": [
+   "forgiver",
+   "ghafir",
+   "ghafirr"
+  ]
+ },
+ {
+  "number": 41,
+  "slug": "fussilat",
+  "name_ar": "فصلت",
+  "name_en": "Fussilat",
+  "meaning_en": "Explained in detail",
+  "ayahs": 54,
+  "revelation": "meccan",
+  "aliases": [
+   "explained",
+   "fussilat"
+  ]
+ },
+ {
+  "number": 42,
+  "slug": "shura",
+  "name_ar": "الشورى",
+  "name_en": "Ash-Shura",
+  "meaning_en": "Consultation",
+  "ayahs": 53,
+  "revelation": "meccan",
+  "aliases": [
+   "ash-shura",
+   "consultation",
+   "shoora",
+   "shura"
+  ]
+ },
+ {
+  "number": 43,
+  "slug": "zukhruf",
+  "name_ar": "الزخرف",
+  "name_en": "Az-Zukhruf",
+  "meaning_en": "Ornaments of gold",
+  "ayahs": 89,
+  "revelation": "meccan",
+  "aliases": [
+   "az-zukhruf",
+   "ornaments",
+   "zukhruf"
+  ]
+ },
+ {
+  "number": 44,
+  "slug": "dukhaan",
+  "name_ar": "الدّخان",
+  "name_en": "Ad-Dukhaan",
+  "meaning_en": "The Smoke",
+  "ayahs": 59,
+  "revelation": "meccan",
+  "aliases": [
+   "ad-dukhaan",
+   "dukhaan",
+   "dukhan",
+   "smoke"
+  ]
+ },
+ {
+  "number": 45,
+  "slug": "jaathiya",
+  "name_ar": "الجاثية",
+  "name_en": "Al-Jaathiya",
+  "meaning_en": "Crouching",
+  "ayahs": 37,
+  "revelation": "meccan",
+  "aliases": [
+   "al-jaathiya",
+   "crouching",
+   "jaathiya",
+   "jaatia"
+  ]
+ },
+ {
+  "number": 46,
+  "slug": "ahqaf",
+  "name_ar": "الأحقاف",
+  "name_en": "Al-Ahqaf",
+  "meaning_en": "The Dunes",
+  "ayahs": 35,
+  "revelation": "meccan",
+  "aliases": [
+   "ahqaaf",
+   "ahqaf",
+   "al-ahqaf",
+   "dunes"
+  ]
+ },
+ {
+  "number": 47,
+  "slug": "muhammad",
+  "name_ar": "محمد",
+  "name_en": "Muhammad",
+  "meaning_en": "Muhammad",
+  "ayahs": 38,
+  "revelation": "medinan",
+  "aliases": [
+   "muhammad",
+   "prophet"
+  ]
+ },
+ {
+  "number": 48,
+  "slug": "fath",
+  "name_ar": "الفتح",
+  "name_en": "Al-Fath",
+  "meaning_en": "The Victory",
+  "ayahs": 29,
+  "revelation": "medinan",
+  "aliases": [
+   "al-fath",
+   "fat-h",
+   "fath",
+   "victory"
+  ]
+ },
+ {
+  "number": 49,
+  "slug": "hujuraat",
+  "name_ar": "الحجرات",
+  "name_en": "Al-Hujuraat",
+  "meaning_en": "The Inner Apartments",
+  "ayahs": 18,
+  "revelation": "medinan",
+  "aliases": [
+   "al-hujuraat",
+   "apartments",
+   "hujuraat",
+   "hujurat"
+  ]
+ },
+ {
+  "number": 50,
+  "slug": "qaaf",
+  "name_ar": "ق",
+  "name_en": "Qaaf",
+  "meaning_en": "The letter Qaaf",
+  "ayahs": 45,
+  "revelation": "meccan",
+  "aliases": [
+   "qaaf",
+   "qaf",
+   "the-letter-qaf"
+  ]
+ },
+ {
+  "number": 51,
+  "slug": "dhaariyat",
+  "name_ar": "الذاريات",
+  "name_en": "Adh-Dhaariyat",
+  "meaning_en": "The Winnowing Winds",
+  "ayahs": 60,
+  "revelation": "meccan",
+  "aliases": [
+   "adh-dhaariyat",
+   "dhaariyat",
+   "dhariyat",
+   "winnowing"
+  ]
+ },
+ {
+  "number": 52,
+  "slug": "tur",
+  "name_ar": "الطور",
+  "name_en": "At-Tur",
+  "meaning_en": "The Mount",
+  "ayahs": 49,
+  "revelation": "meccan",
+  "aliases": [
+   "at-tur",
+   "the-mount",
+   "tur"
+  ]
+ },
+ {
+  "number": 53,
+  "slug": "najm",
+  "name_ar": "النجم",
+  "name_en": "An-Najm",
+  "meaning_en": "The Star",
+  "ayahs": 62,
+  "revelation": "meccan",
+  "aliases": [
+   "an-najm",
+   "najm",
+   "star",
+   "the-star"
+  ]
+ },
+ {
+  "number": 54,
+  "slug": "qamar",
+  "name_ar": "القمر",
+  "name_en": "Al-Qamar",
+  "meaning_en": "The Moon",
+  "ayahs": 55,
+  "revelation": "meccan",
+  "aliases": [
+   "al-qamar",
+   "moon",
+   "qamar",
+   "the-moon"
+  ]
+ },
+ {
+  "number": 55,
+  "slug": "rahmaan",
+  "name_ar": "الرحمن",
+  "name_en": "Ar-Rahmaan",
+  "meaning_en": "The Beneficent",
+  "ayahs": 78,
+  "revelation": "medinan",
+  "aliases": [
+   "ar-rahmaan",
+   "beneficent",
+   "rahmaan",
+   "rahman"
+  ]
+ },
+ {
+  "number": 56,
+  "slug": "waaqia",
+  "name_ar": "الواقعة",
+  "name_en": "Al-Waaqia",
+  "meaning_en": "The Inevitable",
+  "ayahs": 96,
+  "revelation": "meccan",
+  "aliases": [
+   "al-waaqia",
+   "inevitable",
+   "waaqia",
+   "waqiya"
+  ]
+ },
+ {
+  "number": 57,
+  "slug": "hadid",
+  "name_ar": "الحديد",
+  "name_en": "Al-Hadid",
+  "meaning_en": "The Iron",
+  "ayahs": 29,
+  "revelation": "medinan",
+  "aliases": [
+   "al-hadid",
+   "hadid",
+   "iron",
+   "the-iron"
+  ]
+ },
+ {
+  "number": 58,
+  "slug": "mujaadila",
+  "name_ar": "المجادلة",
+  "name_en": "Al-Mujaadila",
+  "meaning_en": "The Pleading Woman",
+  "ayahs": 22,
+  "revelation": "medinan",
+  "aliases": [
+   "al-mujaadila",
+   "mujaadila",
+   "mujadila",
+   "pleading-woman"
+  ]
+ },
+ {
+  "number": 59,
+  "slug": "hashr",
+  "name_ar": "الحشر",
+  "name_en": "Al-Hashr",
+  "meaning_en": "The Exile",
+  "ayahs": 24,
+  "revelation": "medinan",
+  "aliases": [
+   "al-hashr",
+   "exile",
+   "hashr",
+   "the-exile"
+  ]
+ },
+ {
+  "number": 60,
+  "slug": "mumtahana",
+  "name_ar": "الممتحنة",
+  "name_en": "Al-Mumtahana",
+  "meaning_en": "She that is to be examined",
+  "ayahs": 13,
+  "revelation": "medinan",
+  "aliases": [
+   "al-mumtahana",
+   "examined",
+   "mumtahana",
+   "mumtahanah"
+  ]
+ },
+ {
+  "number": 61,
+  "slug": "saff",
+  "name_ar": "الصف",
+  "name_en": "As-Saff",
+  "meaning_en": "The Ranks",
+  "ayahs": 14,
+  "revelation": "medinan",
+  "aliases": [
+   "as-saff",
+   "ranks",
+   "saaff",
+   "saff"
+  ]
+ },
+ {
+  "number": 62,
+  "slug": "jumua",
+  "name_ar": "الجمعة",
+  "name_en": "Al-Jumu'a",
+  "meaning_en": "Friday",
+  "ayahs": 11,
+  "revelation": "medinan",
+  "aliases": [
+   "al-jumua",
+   "aljumua",
+   "friday",
+   "jumua",
+   "jumuah"
+  ]
+ },
+ {
+  "number": 63,
+  "slug": "munaafiqoon",
+  "name_ar": "المنافقون",
+  "name_en": "Al-Munaafiqoon",
+  "meaning_en": "The Hypocrites",
+  "ayahs": 11,
+  "revelation": "medinan",
+  "aliases": [
+   "al-munaafiqoon",
+   "hypocrites",
+   "munaafiqoon",
+   "munafiqoon"
+  ]
+ },
+ {
+  "number": 64,
+  "slug": "taghaabun",
+  "name_ar": "التغابن",
+  "name_en": "At-Taghaabun",
+  "meaning_en": "Mutual Disillusion",
+  "ayahs": 18,
+  "revelation": "medinan",
+  "aliases": [
+   "at-taghaabun",
+   "mutual-disillusion",
+   "taghaabun",
+   "taghabun"
+  ]
+ },
+ {
+  "number": 65,
+  "slug": "talaaq",
+  "name_ar": "الطلاق",
+  "name_en": "At-Talaaq",
+  "meaning_en": "Divorce",
+  "ayahs": 12,
+  "revelation": "medinan",
+  "aliases": [
+   "at-talaaq",
+   "divorce",
+   "talaaq",
+   "talaq"
+  ]
+ },
+ {
+  "number": 66,
+  "slug": "tahrim",
+  "name_ar": "التحريم",
+  "name_en": "At-Tahrim",
+  "meaning_en": "The Prohibition",
+  "ayahs": 12,
+  "revelation": "medinan",
+  "aliases": [
+   "at-tahrim",
+   "tahrim",
+   "the-prohibition"
+  ]
+ },
+ {
+  "number": 67,
+  "slug": "mulk",
+  "name_ar": "الملك",
+  "name_en": "Al-Mulk",
+  "meaning_en": "The Sovereignty",
+  "ayahs": 30,
+  "revelation": "meccan",
+  "aliases": [
+   "al-mulk",
+   "almulk",
+   "mulk",
+   "sovereignty"
+  ]
+ },
+ {
+  "number": 68,
+  "slug": "qalam",
+  "name_ar": "القلم",
+  "name_en": "Al-Qalam",
+  "meaning_en": "The Pen",
+  "ayahs": 52,
+  "revelation": "meccan",
+  "aliases": [
+   "al-qalam",
+   "pen",
+   "qalam",
+   "the-pen"
+  ]
+ },
+ {
+  "number": 69,
+  "slug": "haqqa",
+  "name_ar": "الحاقة",
+  "name_en": "Al-Haaqqa",
+  "meaning_en": "The Reality",
+  "ayahs": 52,
+  "revelation": "meccan",
+  "aliases": [
+   "al-haaqqa",
+   "haaqqa",
+   "haqqa",
+   "haqqah",
+   "reality"
+  ]
+ },
+ {
+  "number": 70,
+  "slug": "maarij",
+  "name_ar": "المعارج",
+  "name_en": "Al-Ma'aarij",
+  "meaning_en": "The Ascending Stairways",
+  "ayahs": 44,
+  "revelation": "meccan",
+  "aliases": [
+   "al-maaarij",
+   "ascending-stairways",
+   "maaarij",
+   "maarij"
+  ]
+ },
+ {
+  "number": 71,
+  "slug": "nooh",
+  "name_ar": "نوح",
+  "name_en": "Nooh",
+  "meaning_en": "Noah",
+  "ayahs": 28,
+  "revelation": "meccan",
+  "aliases": [
+   "noah",
+   "nooh",
+   "nuh"
+  ]
+ },
+ {
+  "number": 72,
+  "slug": "jinn",
+  "name_ar": "الجن",
+  "name_en": "Al-Jinn",
+  "meaning_en": "The Jinn",
+  "ayahs": 28,
+  "revelation": "meccan",
+  "aliases": [
+   "al-jinn",
+   "jinn"
+  ]
+ },
+ {
+  "number": 73,
+  "slug": "muzzammil",
+  "name_ar": "المزمل",
+  "name_en": "Al-Muzzammil",
+  "meaning_en": "The Enshrouded One",
+  "ayahs": 20,
+  "revelation": "meccan",
+  "aliases": [
+   "al-muzzammil",
+   "enshrouded",
+   "muzzammel",
+   "muzzammil"
+  ]
+ },
+ {
+  "number": 74,
+  "slug": "muddaththir",
+  "name_ar": "المدثر",
+  "name_en": "Al-Muddaththir",
+  "meaning_en": "The Cloaked One",
+  "ayahs": 56,
+  "revelation": "meccan",
+  "aliases": [
+   "al-muddaththir",
+   "cloaked",
+   "muddathir",
+   "muddaththir"
+  ]
+ },
+ {
+  "number": 75,
+  "slug": "qiyaama",
+  "name_ar": "القيامة",
+  "name_en": "Al-Qiyaama",
+  "meaning_en": "The Resurrection",
+  "ayahs": 40,
+  "revelation": "meccan",
+  "aliases": [
+   "al-qiyaama",
+   "qiyaama",
+   "qiyamah",
+   "resurrection"
+  ]
+ },
+ {
+  "number": 76,
+  "slug": "insaan",
+  "name_ar": "الإنسان",
+  "name_en": "Al-Insaan",
+  "meaning_en": "Man",
+  "ayahs": 31,
+  "revelation": "medinan",
+  "aliases": [
+   "al-insaan",
+   "insaan",
+   "insan",
+   "man"
+  ]
+ },
+ {
+  "number": 77,
+  "slug": "mursalaat",
+  "name_ar": "المرسلات",
+  "name_en": "Al-Mursalaat",
+  "meaning_en": "The Emissaries",
+  "ayahs": 50,
+  "revelation": "meccan",
+  "aliases": [
+   "al-mursalaat",
+   "emissaries",
+   "mursalaat",
+   "mursalat"
+  ]
+ },
+ {
+  "number": 78,
+  "slug": "naba",
+  "name_ar": "النبأ",
+  "name_en": "An-Naba",
+  "meaning_en": "The Announcement",
+  "ayahs": 40,
+  "revelation": "meccan",
+  "aliases": [
+   "an-naba",
+   "announcement",
+   "naba",
+   "nabaa"
+  ]
+ },
+ {
+  "number": 79,
+  "slug": "naaziaat",
+  "name_ar": "النازعات",
+  "name_en": "An-Naazi'aat",
+  "meaning_en": "Those who drag forth",
+  "ayahs": 46,
+  "revelation": "meccan",
+  "aliases": [
+   "an-naaziaat",
+   "drag-forth",
+   "naaziaat",
+   "naziat"
+  ]
+ },
+ {
+  "number": 80,
+  "slug": "abasa",
+  "name_ar": "عبس",
+  "name_en": "Abasa",
+  "meaning_en": "He frowned",
+  "ayahs": 42,
+  "revelation": "meccan",
+  "aliases": [
+   "abasa"
+  ]
+ },
+ {
+  "number": 81,
+  "slug": "takwir",
+  "name_ar": "التكوير",
+  "name_en": "At-Takwir",
+  "meaning_en": "The Overthrowing",
+  "ayahs": 29,
+  "revelation": "meccan",
+  "aliases": [
+   "at-takwir",
+   "overthrowing",
+   "takwir"
+  ]
+ },
+ {
+  "number": 82,
+  "slug": "infitaar",
+  "name_ar": "الإنفطار",
+  "name_en": "Al-Infitaar",
+  "meaning_en": "The Cleaving",
+  "ayahs": 19,
+  "revelation": "meccan",
+  "aliases": [
+   "al-infitaar",
+   "infitaar",
+   "infitar"
+  ]
+ },
+ {
+  "number": 83,
+  "slug": "mutaffifin",
+  "name_ar": "المطففين",
+  "name_en": "Al-Mutaffifin",
+  "meaning_en": "Defrauding",
+  "ayahs": 36,
+  "revelation": "meccan",
+  "aliases": [
+   "al-mutaffifin",
+   "mutaffifin"
+  ]
+ },
+ {
+  "number": 84,
+  "slug": "inshiqaaq",
+  "name_ar": "الإنشقاق",
+  "name_en": "Al-Inshiqaaq",
+  "meaning_en": "The Splitting Open",
+  "ayahs": 25,
+  "revelation": "meccan",
+  "aliases": [
+   "al-inshiqaaq",
+   "inshiqaaq",
+   "inshiqaq"
+  ]
+ },
+ {
+  "number": 85,
+  "slug": "burooj",
+  "name_ar": "البروج",
+  "name_en": "Al-Burooj",
+  "meaning_en": "The Constellations",
+  "ayahs": 22,
+  "revelation": "meccan",
+  "aliases": [
+   "al-burooj",
+   "burooj",
+   "buruj",
+   "constellations"
+  ]
+ },
+ {
+  "number": 86,
+  "slug": "taariq",
+  "name_ar": "الطارق",
+  "name_en": "At-Taariq",
+  "meaning_en": "The Morning Star",
+  "ayahs": 17,
+  "revelation": "meccan",
+  "aliases": [
+   "at-taariq",
+   "morning-star",
+   "taariq",
+   "tariq"
+  ]
+ },
+ {
+  "number": 87,
+  "slug": "alaa",
+  "name_ar": "الأعلى",
+  "name_en": "Al-A'laa",
+  "meaning_en": "The Most High",
+  "ayahs": 19,
+  "revelation": "meccan",
+  "aliases": [
+   "al-alaa",
+   "ala",
+   "alaa",
+   "most-high"
+  ]
+ },
+ {
+  "number": 88,
+  "slug": "ghaashiya",
+  "name_ar": "الغاشية",
+  "name_en": "Al-Ghaashiya",
+  "meaning_en": "The Overwhelming",
+  "ayahs": 26,
+  "revelation": "meccan",
+  "aliases": [
+   "al-ghaashiya",
+   "ghaashiya",
+   "ghashiyah",
+   "overwhelming"
+  ]
+ },
+ {
+  "number": 89,
+  "slug": "fajr",
+  "name_ar": "الفجر",
+  "name_en": "Al-Fajr",
+  "meaning_en": "The Dawn",
+  "ayahs": 30,
+  "revelation": "meccan",
+  "aliases": [
+   "al-fajr",
+   "dawn",
+   "fajr"
+  ]
+ },
+ {
+  "number": 90,
+  "slug": "balad",
+  "name_ar": "البلد",
+  "name_en": "Al-Balad",
+  "meaning_en": "The City",
+  "ayahs": 20,
+  "revelation": "meccan",
+  "aliases": [
+   "al-balad",
+   "balad",
+   "city"
+  ]
+ },
+ {
+  "number": 91,
+  "slug": "shams",
+  "name_ar": "الشمس",
+  "name_en": "Ash-Shams",
+  "meaning_en": "The Sun",
+  "ayahs": 15,
+  "revelation": "meccan",
+  "aliases": [
+   "ash-shams",
+   "shams",
+   "sun"
+  ]
+ },
+ {
+  "number": 92,
+  "slug": "lail",
+  "name_ar": "الليل",
+  "name_en": "Al-Lail",
+  "meaning_en": "The Night",
+  "ayahs": 21,
+  "revelation": "meccan",
+  "aliases": [
+   "al-lail",
+   "allail",
+   "lail",
+   "layl",
+   "night"
+  ]
+ },
+ {
+  "number": 93,
+  "slug": "dhuhaa",
+  "name_ar": "الضحى",
+  "name_en": "Ad-Dhuhaa",
+  "meaning_en": "The Morning Hours",
+  "ayahs": 11,
+  "revelation": "meccan",
+  "aliases": [
+   "ad-dhuhaa",
+   "dhuhaa",
+   "duha",
+   "duhaa",
+   "morning-hours"
+  ]
+ },
+ {
+  "number": 94,
+  "slug": "sharh",
+  "name_ar": "الشرح",
+  "name_en": "Ash-Sharh",
+  "meaning_en": "The Consolation",
+  "ayahs": 8,
+  "revelation": "meccan",
+  "aliases": [
+   "ash-sharh",
+   "consolation",
+   "inshirah",
+   "sharh"
+  ]
+ },
+ {
+  "number": 95,
+  "slug": "tin",
+  "name_ar": "التين",
+  "name_en": "At-Tin",
+  "meaning_en": "The Fig",
+  "ayahs": 8,
+  "revelation": "meccan",
+  "aliases": [
+   "at-tin",
+   "fig",
+   "tin"
+  ]
+ },
+ {
+  "number": 96,
+  "slug": "alaq",
+  "name_ar": "العلق",
+  "name_en": "Al-Alaq",
+  "meaning_en": "The Clot",
+  "ayahs": 19,
+  "revelation": "meccan",
+  "aliases": [
+   "al-alaq",
+   "alaq",
+   "clot"
+  ]
+ },
+ {
+  "number": 97,
+  "slug": "qadr",
+  "name_ar": "القدر",
+  "name_en": "Al-Qadr",
+  "meaning_en": "The Power, Fate",
+  "ayahs": 5,
+  "revelation": "meccan",
+  "aliases": [
+   "al-qadr",
+   "decree",
+   "power",
+   "qadar",
+   "qadr"
+  ]
+ },
+ {
+  "number": 98,
+  "slug": "bayyina",
+  "name_ar": "البينة",
+  "name_en": "Al-Bayyina",
+  "meaning_en": "The Evidence",
+  "ayahs": 8,
+  "revelation": "medinan",
+  "aliases": [
+   "al-bayyina",
+   "bayyina",
+   "bayyinah",
+   "evidence"
+  ]
+ },
+ {
+  "number": 99,
+  "slug": "zalzala",
+  "name_ar": "الزلزلة",
+  "name_en": "Az-Zalzala",
+  "meaning_en": "The Earthquake",
+  "ayahs": 8,
+  "revelation": "medinan",
+  "aliases": [
+   "az-zalzala",
+   "earthquake",
+   "zalzala",
+   "zalzalah"
+  ]
+ },
+ {
+  "number": 100,
+  "slug": "aadiyaat",
+  "name_ar": "العاديات",
+  "name_en": "Al-Aadiyaat",
+  "meaning_en": "The Chargers",
+  "ayahs": 11,
+  "revelation": "meccan",
+  "aliases": [
+   "aadiyaat",
+   "adiyat",
+   "al-aadiyaat",
+   "chargers"
+  ]
+ },
+ {
+  "number": 101,
+  "slug": "qaaria",
+  "name_ar": "القارعة",
+  "name_en": "Al-Qaari'a",
+  "meaning_en": "The Calamity",
+  "ayahs": 11,
+  "revelation": "meccan",
+  "aliases": [
+   "al-qaaria",
+   "calamity",
+   "qaari",
+   "qaaria"
+  ]
+ },
+ {
+  "number": 102,
+  "slug": "takaathur",
+  "name_ar": "التكاثر",
+  "name_en": "At-Takaathur",
+  "meaning_en": "Competition",
+  "ayahs": 8,
+  "revelation": "meccan",
+  "aliases": [
+   "at-takaathur",
+   "competition",
+   "takaathur"
+  ]
+ },
+ {
+  "number": 103,
+  "slug": "asr",
+  "name_ar": "العصر",
+  "name_en": "Al-Asr",
+  "meaning_en": "The Declining Day, Epoch",
+  "ayahs": 3,
+  "revelation": "meccan",
+  "aliases": [
+   "al-asr",
+   "asr",
+   "declining-day",
+   "time"
+  ]
+ },
+ {
+  "number": 104,
+  "slug": "humaza",
+  "name_ar": "الهمزة",
+  "name_en": "Al-Humaza",
+  "meaning_en": "The Traducer",
+  "ayahs": 9,
+  "revelation": "meccan",
+  "aliases": [
+   "al-humaza",
+   "humaza",
+   "humazah",
+   "traducer"
+  ]
+ },
+ {
+  "number": 105,
+  "slug": "fil",
+  "name_ar": "الفيل",
+  "name_en": "Al-Fil",
+  "meaning_en": "The Elephant",
+  "ayahs": 5,
+  "revelation": "meccan",
+  "aliases": [
+   "al-fil",
+   "elephant",
+   "feel",
+   "fil"
+  ]
+ },
+ {
+  "number": 106,
+  "slug": "quraish",
+  "name_ar": "قريش",
+  "name_en": "Quraish",
+  "meaning_en": "Quraysh",
+  "ayahs": 4,
+  "revelation": "meccan",
+  "aliases": [
+   "quraish",
+   "quraysh"
+  ]
+ },
+ {
+  "number": 107,
+  "slug": "maun",
+  "name_ar": "الماعون",
+  "name_en": "Al-Maa'un",
+  "meaning_en": "Almsgiving",
+  "ayahs": 7,
+  "revelation": "meccan",
+  "aliases": [
+   "al-maaun",
+   "almaaun",
+   "almsaadq",
+   "almsadqah",
+   "almsaun",
+   "maaun",
+   "maun"
+  ]
+ },
+ {
+  "number": 108,
+  "slug": "kawthar",
+  "name_ar": "الكوثر",
+  "name_en": "Al-Kawthar",
+  "meaning_en": "Abundance",
+  "ayahs": 3,
+  "revelation": "meccan",
+  "aliases": [
+   "abundance",
+   "al-kawthar",
+   "kawthar"
+  ]
+ },
+ {
+  "number": 109,
+  "slug": "kaafiroon",
+  "name_ar": "الكافرون",
+  "name_en": "Al-Kaafiroon",
+  "meaning_en": "The Disbelievers",
+  "ayahs": 6,
+  "revelation": "meccan",
+  "aliases": [
+   "al-kaafiroon",
+   "disbelievers",
+   "kaafiroon",
+   "kafirun"
+  ]
+ },
+ {
+  "number": 110,
+  "slug": "nasr",
+  "name_ar": "النصر",
+  "name_en": "An-Nasr",
+  "meaning_en": "Divine Support",
+  "ayahs": 3,
+  "revelation": "medinan",
+  "aliases": [
+   "an-nasr",
+   "divine-support",
+   "nasr"
+  ]
+ },
+ {
+  "number": 111,
+  "slug": "masad",
+  "name_ar": "المسد",
+  "name_en": "Al-Masad",
+  "meaning_en": "The Palm Fibre",
+  "ayahs": 5,
+  "revelation": "meccan",
+  "aliases": [
+   "al-masad",
+   "almasaad",
+   "masad",
+   "palm-fibre"
+  ]
+ },
+ {
+  "number": 112,
+  "slug": "ikhlaas",
+  "name_ar": "الإخلاص",
+  "name_en": "Al-Ikhlaas",
+  "meaning_en": "Sincerity",
+  "ayahs": 4,
+  "revelation": "meccan",
+  "aliases": [
+   "al-ikhlaas",
+   "almukhlis",
+   "ikhlaas",
+   "ikhlas",
+   "sincerity"
+  ]
+ },
+ {
+  "number": 113,
+  "slug": "falaq",
+  "name_ar": "الفلق",
+  "name_en": "Al-Falaq",
+  "meaning_en": "The Dawn",
+  "ayahs": 5,
+  "revelation": "meccan",
+  "aliases": [
+   "al-falaq",
+   "alfalaq",
+   "falaq"
+  ]
+ },
+ {
+  "number": 114,
+  "slug": "naas",
+  "name_ar": "الناس",
+  "name_en": "An-Naas",
+  "meaning_en": "Mankind",
+  "ayahs": 6,
+  "revelation": "meccan",
+  "aliases": [
+   "an-naas",
+   "annas",
+   "mankind",
+   "naas",
+   "nas"
+  ]
+ }
+]
