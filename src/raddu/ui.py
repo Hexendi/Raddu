@@ -132,11 +132,21 @@ class Visualizer:
     not by the loudness of the sound. raddu pipes the MP3 straight to the
     player and never sees the samples, so there is no signal to sample -
     an FFT would mean decoding the stream a second time.
+
+    Bars are tinted along an orange ramp instead of being left white: the
+    taller the bar the lighter the tint, and the whole ramp drifts across
+    the display over time, so the colour never sits in one place.
     """
 
     LEVELS = 8
     HEIGHT = 4              # rows of bars above (and below) the centre line
     FPS = 14
+
+    # Deep orange up to a pale amber, as 24-bit RGB.
+    RAMP = (
+        (146, 58, 12), (176, 72, 18), (203, 86, 26), (217, 105, 45),
+        (233, 132, 72), (245, 162, 104), (252, 191, 146), (255, 222, 196),
+    )
 
     def __init__(self, title: str = "", stream=None) -> None:
         self.stream = stream or sys.stderr
@@ -219,25 +229,45 @@ class Visualizer:
         return cols
 
     # -- rendering -------------------------------------------------------
-    @staticmethod
-    def _cell(level: int, row: int, height: int) -> str:
+    def _tint(self, index: int, level: int) -> str:
+        """Pick a ramp entry for a column and emit its escape sequence.
+
+        Height chooses the tint, and the ramp is offset by both the column
+        position and the frame counter, so the colours travel across the
+        display instead of staying pinned to each bar.
+        """
+        if not self.live:
+            return ""
+        r, g, b = self.RAMP[
+            (level + index // 4 + self.phase // 3) % len(self.RAMP)
+        ]
+        return f"\033[38;2;{r};{g};{b}m"
+
+    def _cell(self, index: int, level: int, row: int) -> str:
         """One character of one column, mirrored around the centre line."""
         dist = abs(row)
         if dist > level:
-            return " "
+            return self._tint(index, level) + " "
         if level <= 1:
-            return BARS[0]
-        return BARS[min(len(BARS) - 1, level - dist)]
+            ch = BARS[0]
+        else:
+            ch = BARS[min(len(BARS) - 1, level - dist)]
+        return self._tint(index, level) + ch
+
+    def _row(self, cols: list[int], row: int) -> str:
+        return "  " + "".join(
+            self._cell(i, l, row) for i, l in enumerate(cols)
+        ) + "\033[0m"
 
     def _lines(self) -> list[str]:
         cols = self._levels()
-        top = self.HEIGHT
         out = []
-        for r in range(-top, 0):
-            out.append("  " + "".join(self._cell(l, r, top) for l in cols))
-        out.append("  " + "─" * len(cols))
+        for r in range(-self.HEIGHT, 0):
+            out.append(self._row(cols, r))
+        rule = "─" * len(cols)
+        out.append("  " + (self._tint(0, 1) + rule + "\033[0m" if self.live else rule))
         for r in range(1, self.HEIGHT + 1):      # mirror of the rows above
-            out.append("  " + "".join(self._cell(l, r, self.HEIGHT) for l in cols))
+            out.append(self._row(cols, r))
 
         if self.total:
             pct = min(self.done / self.total * 100, 100)
@@ -246,8 +276,8 @@ class Visualizer:
             right = "connecting"
         left = self.title
         gap = max(len(cols) + 4 - len(left) - len(right), 1)
-        out.append(f"  {left}{' ' * gap}{right}")
-        return out
+        line = f"  {left}{' ' * gap}{right}"
+        return out + [self._tint(0, 2) + line + "\033[0m" if self.live else line]
 
     def _paint(self, up: int = 0) -> None:
         if not self.live:
