@@ -71,6 +71,14 @@ expect_eq "kha  (Mohammad Khalil al-Qari)" "https://cdn.mp3quran.net/audio/muham
                                   "$("$RADDU" -naas -kha --url 2>/dev/null)"
 expect_eq "long alias 'lhaydan' still resolves" "https://cdn.mp3quran.net/audio/muhammad-luhaidan/r1/114.mp3" \
                                   "$("$RADDU" -naas -lhaydan --url 2>/dev/null)"
+expect_eq "bilal (Mauritanian, way2quran)" "https://media.way2quran.com/al-nagy-wild-bilal/qalun-an-nafi/114.mp3" \
+                                  "$("$RADDU" -naas -bilal --url 2>/dev/null)"
+expect_eq "lagh  (Mauritanian)" "https://media.way2quran.com/mohamed-laghzaf-weld-mohamed-sidi/qalun-an-nafi/002.mp3" \
+                                  "$("$RADDU" -baqara -lagh --url 2>/dev/null)"
+expect_eq "way2quran keeps the exact unpadded filename" \
+          "https://media.way2quran.com/alragel-ould-othman/warsh-an-nafi/020.mp3" \
+                                  "$("$RADDU" -taha -ragl --url 2>/dev/null)"
+expect_contains "-f mauritanian finds the MR voices" "Al-Nagy Ould Bilal" "$RADDU" -f mauritanian
 expect_rc "incomplete recording is reported" 2 "$RADDU" -baqara -haz --url
 expect_contains "incomplete message is specific" "91/114" "$RADDU" -baqara -haz --url
 expect_eq "--style override"       "https://cdn.mp3quran.net/audio/mahmoud-husary/r5/036.mp3" \
