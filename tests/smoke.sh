@@ -81,6 +81,43 @@ expect_eq "way2quran keeps the exact unpadded filename" \
 expect_contains "-f mauritanian finds the MR voices" "Al-Nagy Ould Bilal" "$RADDU" -f mauritanian
 expect_rc "incomplete recording is reported" 2 "$RADDU" -baqara -haz --url
 expect_contains "incomplete message is specific" "91/114" "$RADDU" -baqara -haz --url
+
+head_ "player pipe teardown"
+# A signal arriving mid-cleanup used to make stop() close the same fd twice,
+# which surfaced as "Bad file descriptor" on the way out.
+if PYTHONPATH="$ROOT/src" python3 - <<'PY'
+import subprocess, sys
+from raddu.player import PlayerSpec, Session
+p = subprocess.Popen(["sleep", "30"], stdin=subprocess.PIPE,
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+s = Session(PlayerSpec("sleep", "sleep", ("30",)))
+s.proc, s._stdin = p, p.stdin
+s._stdin.write(b"x" * 4096)
+s._drop_stdin()
+s._drop_stdin()          # re-entrant: must be a no-op, not a double close
+s.stop()
+p.kill()
+sys.exit(0)
+PY
+then ok "_drop_stdin is re-entrancy safe"; else bad "_drop_stdin is re-entrancy safe" "clean exit" "raised"; fi
+
+head_ "visualizer"
+if PYTHONPATH="$ROOT/src" python3 - <<'PY'
+import sys
+from raddu import ui
+v = ui.Visualizer("probe")
+assert v.rows() == len(v._lines()), "row count drift"
+mid = v.HEIGHT
+lines = v._lines()
+above = lines[:mid]
+below = lines[mid + 1:v.rows() - 1]
+assert above == below[::-1], "bars are not mirrored"
+v.done, v.total = 5_000_000, 20_000_000
+v.phase = 9
+assert len(v._lines()) == v.rows(), "row count drift after resize"
+sys.exit(0)
+PY
+then ok "visualizer is mirrored and fixed-height"; else bad "visualizer is mirrored and fixed-height" "clean exit" "raised"; fi
 expect_eq "--style override"       "https://cdn.mp3quran.net/audio/mahmoud-husary/r5/036.mp3" \
                                   "$("$RADDU" -yaseen -hus --style qalun --url 2>/dev/null)"
 expect_eq "playlist alternates voices" \

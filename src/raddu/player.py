@@ -100,25 +100,35 @@ class Session:
     def __exit__(self, *exc) -> None:
         self.close()
 
-    @staticmethod
-    def _drop_stdin(fh) -> None:
-        """Close a pipe without flushing it.
+    def _drop_stdin(self) -> None:
+        """Close the player's input pipe without flushing it.
 
         ``BufferedWriter.close()`` flushes first, which blocks indefinitely
-        when the player has stopped reading - exactly what happens on
+        once the player has stopped reading - exactly what happens on
         Ctrl-C.  ``detach()`` drops the buffer and hands back the raw stream,
         which closes the fd straight away.
+
+        The handle is claimed *before* any work.  A signal can land in the
+        middle of this function, and the resulting KeyboardInterrupt unwinds
+        into ``close()``, which would otherwise call in here a second time
+        and close an already-closed fd - the object then fails to finalise
+        with EBADF on the way out.
         """
+        fh, self._stdin = self._stdin, None
         if fh is None:
             return
         try:
             raw = fh.detach()
-            raw.close()
         except (OSError, ValueError, AttributeError):
-            try:
-                os.close(fh.fileno())
-            except (OSError, ValueError):
+            return
+        try:
+            raw.close()
+        except BaseException:
+            try:                      # interrupted: the fd still has to go
+                raw.close()
+            except Exception:
                 pass
+            raise
 
     def play(self, url: str, *, timeout: float = 30.0) -> int:
         if self.spec.stdin_ok:
@@ -138,8 +148,7 @@ class Session:
                 # player exited early (user pressed q) - that is a clean stop
                 return 0
             finally:
-                self._drop_stdin(self._stdin)
-                self._stdin = None
+                self._drop_stdin()
             rc = self.proc.wait()
             self.proc = None
             if rc not in (0, None):
@@ -160,9 +169,7 @@ class Session:
         return written
 
     def stop(self) -> None:
-        if self._stdin is not None:
-            self._drop_stdin(self._stdin)
-            self._stdin = None
+        self._drop_stdin()
         if self.proc and self.proc.poll() is None:
             self.proc.terminate()
             try:
