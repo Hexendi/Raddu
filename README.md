@@ -150,7 +150,7 @@ lists the styles that do — rather than failing with a 404.
 
 ---
 
-## The ten voices
+## The voices
 
 | code | reciter | default | alternates |
 |---|---|---|---|
@@ -164,6 +164,9 @@ lists the styles that do — rather than failing with a 404.
 | `mui` | Maher al-Muaiqly | Mujawwad | hafs |
 | `ajm` | Ahmad ibn Ali al-Ajmī | Hafs an Asim | — |
 | `hud` | Ali Abdur-Rahman al-Hudhaify | Hafs an Asim | qalun, shubah |
+| `haz` | Hazzaa al-Balushi | Hafs an Asim | 91/114 — see below |
+| `luh` | Muhammad al-Luhaidan | Hafs an Asim | — |
+| `kha` | Mohammad Khalil al-Qari | Hafs an Asim | — |
 
 The default voice is `aft`. Change it:
 
@@ -172,6 +175,21 @@ raddu --set reciter=hus
 raddu --config
 raddu --set reciter=clear      # back to the built-in default
 ```
+
+### Incomplete recordings
+
+Some reciters do not have all 114 surahs recorded. `raddu` tracks this per
+recitation and tells you plainly instead of failing with a 404:
+
+```
+$ raddu -baqara -haz
+raddu: Hazzaa al-Balushi does not have Surah Al-Baqara in the Hafs an Asim
+recording (available 91/114; missing 2, 3, 4, 5, 7, 9 ...). Hazzaa al-Balushi
+has no other recording - see 'raddu -R' for a reciter that covers all 114.
+```
+
+`haz` is the only one with gaps today (surahs 2, 3, 4, 5, 7, 9, 10, 11, 16, 23,
+24, 26, 27, 28, 33, 48, 56, 58, 59, 60, 62, 64, 65, 66 are absent upstream).
 
 ---
 
@@ -270,7 +288,7 @@ src/raddu/
   cli.py               argument parsing, planning, dispatch
   catalog.py           surah/reciter lookup and URL resolution
   data/surahs.json     114 surahs + 448 aliases
-  data/reciters.json   10 voices + 22 recitation styles
+  data/reciters.json   13 voices + 25 recitation styles
   net.py               HTTP streaming and probing
   player.py            player detection and playback
   ui.py                colours, tables, progress bar
