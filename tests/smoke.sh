@@ -63,6 +63,16 @@ expect_eq "long --surah form"      "https://cdn.mp3quran.net/audio/mishary-alafa
                                   "$("$RADDU" --surah 114 --reciter aft --url 2>/dev/null)"
 expect_eq "voice:style syntax"     "https://cdn.mp3quran.net/audio/mahmoud-husary/r2/036.mp3" \
                                   "$("$RADDU" -yaseen -hus:mujawwad --url 2>/dev/null)"
+expect_eq "haz  (Hazzaa al-Balushi)" "https://cdn.mp3quran.net/audio/hazza-balushi/r1/036.mp3" \
+                                  "$("$RADDU" -yaseen -haz --url 2>/dev/null)"
+expect_eq "luh  (Muhammad al-Luhaidan)" "https://cdn.mp3quran.net/audio/muhammad-luhaidan/r1/114.mp3" \
+                                  "$("$RADDU" -naas -luh --url 2>/dev/null)"
+expect_eq "kha  (Mohammad Khalil al-Qari)" "https://cdn.mp3quran.net/audio/muhammad-khalil/r1/114.mp3" \
+                                  "$("$RADDU" -naas -kha --url 2>/dev/null)"
+expect_eq "long alias 'lhaydan' still resolves" "https://cdn.mp3quran.net/audio/muhammad-luhaidan/r1/114.mp3" \
+                                  "$("$RADDU" -naas -lhaydan --url 2>/dev/null)"
+expect_rc "incomplete recording is reported" 2 "$RADDU" -baqara -haz --url
+expect_contains "incomplete message is specific" "91/114" "$RADDU" -baqara -haz --url
 expect_eq "--style override"       "https://cdn.mp3quran.net/audio/mahmoud-husary/r5/036.mp3" \
                                   "$("$RADDU" -yaseen -hus --style qalun --url 2>/dev/null)"
 expect_eq "playlist alternates voices" \
