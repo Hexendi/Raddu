@@ -120,7 +120,7 @@ def build_epilog(pm: ui.Palette) -> str:
     cat = catalog()
     L: list[str] = []
     L.append("VOICES - pass as -<code> or --reciter <code>")
-    L.append("  " + pm(f"{'code':<6}{'reciter':<32}{'default recitation':<20}alternates", "grey"))
+    L.append("  " + pm(f"{'code':<6}{'reciter':<32}{'default recitation':<20}alternates", "brand"))
     for r in cat.reciters:
         alts = ", ".join(s.code for s in r.styles if s.code != r.default_style)
         L.append(f"  {r.code:<6}{r.name_en:<32}{r.default_label_en:<20}{alts or '-'}")
@@ -320,9 +320,9 @@ def show_reciters(pm: ui.Palette) -> None:
     ui.table(pm, ["code", "reciter", "بالاسم", "default", "alt styles", "from"],
              rows, aligns=["l", "l", "l", "l", "l", "l"])
     print()
-    print("  " + pm(f"select one with:  {PROG} -<code>       e.g. {PROG} -sud", "grey"))
-    print("  " + pm(f"alternate style:  {PROG} <code>:<style>  e.g. {PROG} -hus:qalun", "grey"))
-    print("  " + pm(f"search for a country:  {PROG} -f mauritanian", "grey"))
+    print("  " + pm(f"select one with:  {PROG} -<code>       e.g. {PROG} -sud", "brand"))
+    print("  " + pm(f"alternate style:  {PROG} <code>:<style>  e.g. {PROG} -hus:qalun", "brand"))
+    print("  " + pm(f"search for a country:  {PROG} -f mauritanian", "brand"))
 
 
 def show_surahs(pm: ui.Palette) -> None:
@@ -361,7 +361,7 @@ def show_config(pm: ui.Palette) -> None:
     path = config.config_path()
     data = config.load()
     if not data:
-        print(pm(f"no settings saved ({path})", "grey"))
+        print(pm(f"no settings saved ({path})", "brand"))
         print(f"  built-in default voice: {config.default_reciter()}")
         return
     print(f"  {pm(str(path), 'grey')}")
@@ -374,15 +374,17 @@ def show_config(pm: ui.Palette) -> None:
 # ---------------------------------------------------------------------------
 def describe_track(pm: ui.Palette, track) -> None:
     s, r, st = track.surah, track.reciter, track.style
-    print(f"  {pm('Surah', 'grey')}  {pm(s.name_en, 'bold', 'cyan')} "
-          f"{pm(f'#{s.number}', 'grey')}  {pm(s.name_ar, 'cyan')}")
-    print(f"         {pm(f'{s.meaning_en} - {s.ayahs} ayahs - {s.revelation}', 'grey')}")
-    print(f"  {pm('Voice', 'grey')}   {pm(r.name_en, 'bold')} "
-          f"{pm(r.code, 'cyan')}  {pm(r.name_ar, 'cyan')}")
-    print(f"         {pm(st.label_en, 'grey')}"
-          + (f" {pm('(via ' + st.code + ')', 'grey')}"
-             if st.code != r.default_style else ""))
-    print(f"  {pm('Source', 'grey')}  {pm(track.url, 'grey')}")
+    style = st.label_en if st.code == r.default_style else f"{st.label_en} ({st.code})"
+    ui.card(pm, [
+        ("", ""),
+        ("SURAH", f"{s.name_en}  #{s.number}   {s.name_ar}"),
+        ("", f"{s.meaning_en} · {s.ayahs} ayahs · {s.revelation.capitalize()}"),
+        ("", ""),
+        ("VOICE", f"{r.name_en}  {r.code}   {r.name_ar}"),
+        ("", f"{style}" + (f"   🇲🇷 {r.nationality}" if r.nationality else "")),
+        ("", ""),
+        ("SOURCE", track.url),
+    ])
 
 
 def do_check(pm: ui.Palette, cat, args, planned: list, user_selected: bool) -> int:
@@ -397,7 +399,7 @@ def do_check(pm: ui.Palette, cat, args, planned: list, user_selected: bool) -> i
         samples = (cat.surahs[0], cat.surahs[1], cat.surahs[35], cat.surahs[113])
         targets = [(s, r, r.style) for r in cat.reciters for s in samples]
 
-    print(pm(f"checking {len(targets)} audio URL(s) - nothing will be played", "grey"))
+    print(pm(f"checking {len(targets)} audio URL(s) - nothing will be played", "brand"))
     ok = bad = 0
     seen: set = set()
     for surah, rec, style in targets:
@@ -453,12 +455,12 @@ def do_play(pm: ui.Palette, planned: list, args) -> int:
         spec = player_mod.detect(args.player or config.load().get("player") or None)
     except player_mod.PlayerError as exc:
         return die(pm, str(exc), EXIT_FAIL)
-    print(pm(f"player: {spec.name} ({spec.binary})", "grey"))
+    print(pm(f"player: {spec.name} ({spec.binary})", "brand"))
     print()
     failures = 0
     for i, track in enumerate(planned):
         if i:
-            print(pm("  " + "-" * 70, "grey"))
+            print(pm("  " + "-" * 70, "brand"))
             print()
         if not args.no_banner:
             describe_track(pm, track)
@@ -467,9 +469,9 @@ def do_play(pm: ui.Palette, planned: list, args) -> int:
         try:
             with player_mod.Session(spec, on_total=bar.start, on_chunk=bar.advance) as s:
                 s.play(track.url, timeout=args.timeout)
-            print(pm("  done.", "grey"))
+            print(pm("  done.", "brand"))
         except KeyboardInterrupt:
-            print(pm("\n  stopped.", "grey"))
+            print(pm("\n  stopped.", "brand"))
             return EXIT_OK
         except (net.NetworkError, player_mod.PlayerError) as exc:
             print(pm(f"  error: {exc}", "red"))
@@ -511,7 +513,7 @@ def _main(argv: list[str] | None = None) -> int:
         except CatalogError as exc:
             return die(pm, str(exc))
         print(pm(result, "green"))
-        print(pm(f"saved to {config.config_path()}", "grey"))
+        print(pm(f"saved to {config.config_path()}", "brand"))
         return EXIT_OK
     if args.config:
         show_config(pm)
