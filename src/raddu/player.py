@@ -101,31 +101,30 @@ class Session:
         self.close()
 
     def _drop_stdin(self) -> None:
-        """Close the player's input pipe without flushing it.
+        """Close the player's input pipe.
 
-        ``BufferedWriter.close()`` flushes first, which blocks indefinitely
-        once the player has stopped reading - exactly what happens on
-        Ctrl-C.  ``detach()`` drops the buffer and hands back the raw stream,
-        which closes the fd straight away.
+        The pipe is opened unbuffered (``bufsize=0`` in ``play()``), so this
+        is a plain fd close: nothing is flushed, nothing blocks.  That
+        matters because the two obvious alternatives are both traps - a
+        flushing close blocks forever once the player has stopped reading,
+        and ``BufferedWriter.detach()`` also flushes first, so with a dead
+        player it raises EPIPE and leaves the writer attached: its buffer
+        is then flushed by the garbage collector on the way out of the
+        interpreter, printing an "Exception ignored while finalizing file"
+        traceback after an otherwise clean Ctrl-C.
 
         The handle is claimed *before* any work.  A signal can land in the
-        middle of this function, and the resulting KeyboardInterrupt unwinds
-        into ``close()``, which would otherwise call in here a second time
-        and close an already-closed fd - the object then fails to finalise
-        with EBADF on the way out.
+        middle of this function; an orphaned unbuffered handle is closed
+        silently by its own finaliser, so there is nothing left to leak.
         """
         fh, self._stdin = self._stdin, None
         if fh is None:
             return
         try:
-            raw = fh.detach()
-        except (OSError, ValueError, AttributeError):
-            return
-        try:
-            raw.close()
+            fh.close()
         except BaseException:
             try:                      # interrupted: the fd still has to go
-                raw.close()
+                fh.close()
             except Exception:
                 pass
             raise
@@ -137,6 +136,10 @@ class Session:
                 stdin=subprocess.PIPE,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
+                # Unbuffered, as subprocess used to default to before 3.14:
+                # proc.stdin is then a plain FileIO whose close() neither
+                # flushes nor blocks, which is what _drop_stdin relies on.
+                bufsize=0,
             )
             self._stdin = self.proc.stdin
             try:
