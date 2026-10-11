@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Raddu runtime artefacts
+*.mp3
+*.part
+.raddu-cache/
+
+# Download output from `raddu --download`
+/downloads/
+
+# Editors / OS
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/
