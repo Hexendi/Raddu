@@ -8,6 +8,7 @@ from __future__ import annotations
 import os
 import shutil
 import sys
+import unicodedata
 from typing import Iterable, Sequence
 
 
@@ -19,7 +20,7 @@ def _color_enabled(stream) -> bool:
     return hasattr(stream, "isatty") and stream.isatty()
 
 
-# Brand colour: a warm amber (24-bit), used for the logo.
+# Brand colour: a warm amber (24-bit), used for the logo and all chrome.
 BRAND_RGB = (217, 119, 87)
 
 # The raddu mark: a pocket radio.
@@ -34,6 +35,22 @@ LOGO: tuple[str, ...] = (
     "│         ░░░░░░ │",
     "╰────────────────╯",
 )
+
+# Block-letter wordmark, drawn large so the name reads as a wordmark rather
+# than as a line of running text.
+WORDMARK: tuple[str, ...] = (
+    "███████╗  ██████╗  ██████╗  ██████╗  ██╗   ██╗",
+    "╚══██╔══╝ ██╔══██╗██╔═══██╗██╔══██╗ ╚██╗ ██╔╝",
+    "   ██║    ██████╔╝██║   ██║██████╔╝  ╚████╔╝ ",
+    "   ██║    ██╔══██╗██║   ██║██╔══██╗   ╚██╔╝  ",
+    "   ██║    ██████╔╝╚██████╔╝██║  ██║   ██║   ",
+    "   ╚═╝    ╚═════╝  ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ",
+)
+
+
+def display_width(text: str) -> int:
+    """Approximate terminal columns, skipping zero-width combining marks."""
+    return sum(0 if unicodedata.combining(ch) else 1 for ch in text)
 
 
 class Palette:
@@ -75,17 +92,44 @@ def term_width(default: int = 80) -> int:
 
 
 def banner(pm: Palette, version: str, subtitle: str = "terminal Quran player") -> None:
-    """Print the raddu mark with the version set beside it."""
-    text = [pm(f"raddu v{version}", "bold", "brand"), pm(subtitle, "grey")]
-    top = max((len(LOGO) - len(text)) // 2, 0)
-    for i, row in enumerate(LOGO):
-        k = i - top
-        suffix = "   " + text[k] if 0 <= k < len(text) else ""
-        print((pm(row, "brand") + suffix).rstrip())
+    """Print the radio mark beside the block wordmark."""
+    rows = max(len(LOGO), len(WORDMARK))
+    pad = " " * display_width(LOGO[0])
+    top = (len(LOGO) - len(WORDMARK)) // 2 if len(LOGO) > len(WORDMARK) else 0
+    for i in range(rows):
+        left = LOGO[i] if i < len(LOGO) else pad
+        right = WORDMARK[i - top] if top <= i < top + len(WORDMARK) else ""
+        print((pm(left, "brand") + "  " + pm(right, "brand", "bold")).rstrip())
+    print(pm(f"  رَدْدُ   ·   {subtitle}   ·   v{version}", "brand"))
+
+
+def card(pm: Palette, rows: Sequence[tuple[str, str]], *, width: int | None = None) -> None:
+    """Print a framed key/value card, sized to its content."""
+    limit = width or min(term_width() - 4, 74)
+    inner = max(
+        [display_width(k) + display_width(v) + 4 for k, v in rows] + [28]
+    )
+    inner = min(inner, limit - 4)
+
+    def line(text: str = "") -> None:
+        pad = max(inner - display_width(text), 0)
+        print(pm("│ ", "brand") + text + " " * pad + pm(" │", "brand"))
+
+    print(pm("╭" + "─" * (inner + 2) + "╮", "brand"))
+    for key, value in rows:
+        if not key:
+            line(value)
+            continue
+        label = pm(f"{key:<8}", "brand", "bold")
+        room = inner - 8
+        v = value if display_width(value) <= room else value[:room - 1] + "…"
+        print(pm("│ ", "brand") + label + v + " " * max(inner - 8 - display_width(v), 0)
+              + pm(" │", "brand"))
+    print(pm("╰" + "─" * (inner + 2) + "╯", "brand"))
 
 
 def rule(pm: Palette, width: int | None = None) -> None:
-    print(pm("─" * min(width or term_width(), 78), "grey"))
+    print(pm("─" * min(width or term_width(), 78), "brand"))
 
 
 def table(
@@ -114,7 +158,7 @@ def table(
             out.append((" " * pad + cell) if aligns[i] == "r" else (cell + " " * pad))
         return indent + styler("  ".join(out).rstrip())
 
-    print(fmt(headers, lambda s: pm(s, "grey", "bold")))
+    print(fmt(headers, lambda s: pm(s, "brand", "bold")))
     for r in rows:
         print(fmt(r, lambda s: s))
 
