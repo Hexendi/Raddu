@@ -19,6 +19,23 @@ def _color_enabled(stream) -> bool:
     return hasattr(stream, "isatty") and stream.isatty()
 
 
+# Brand colour: a warm amber (24-bit), used for the logo.
+BRAND_RGB = (217, 119, 87)
+
+# The raddu mark: a pocket radio.
+LOGO: tuple[str, ...] = (
+    "              ╱",
+    "            ╱",
+    "╭────────────────╮",
+    "│ ┌────────────┐ │",
+    "│ │ FM  ▮      │ │",
+    "│ └────────────┘ │",
+    "│ (o)     ░░░░░░ │",
+    "│         ░░░░░░ │",
+    "╰────────────────╯",
+)
+
+
 class Palette:
     """ANSI codes, neutralised automatically when colour is off."""
 
@@ -33,6 +50,7 @@ class Palette:
         "magenta": "\033[35m",
         "cyan": "\033[36m",
         "grey": "\033[90m",
+        "brand": f"\033[38;2;{BRAND_RGB[0]};{BRAND_RGB[1]};{BRAND_RGB[2]}m",
     }
 
     def __init__(self, enabled: bool) -> None:
@@ -57,11 +75,13 @@ def term_width(default: int = 80) -> int:
 
 
 def banner(pm: Palette, version: str, subtitle: str = "terminal Quran player") -> None:
-    rule = "─" * min(term_width(), 64)
-    print(pm(rule, "grey"))
-    print(f" {pm('raddu', 'bold', 'cyan')} {pm('v' + version, 'grey')}"
-          f"  {pm('·', 'grey')}  {pm(subtitle, 'grey')}")
-    print(pm(rule, "grey"))
+    """Print the raddu mark with the version set beside it."""
+    text = [pm(f"raddu v{version}", "bold", "brand"), pm(subtitle, "grey")]
+    top = max((len(LOGO) - len(text)) // 2, 0)
+    for i, row in enumerate(LOGO):
+        k = i - top
+        suffix = "   " + text[k] if 0 <= k < len(text) else ""
+        print((pm(row, "brand") + suffix).rstrip())
 
 
 def rule(pm: Palette, width: int | None = None) -> None:
