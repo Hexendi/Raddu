@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+"""raddu launcher - runs the package straight from the source tree.
+
+Kept dependency-free on purpose: the tool is stdlib-only Python 3.10+.
+"""
+
+import os
+import sys
+
+# realpath so that a symlink installed into ~/.local/bin still finds src/
+_HERE = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, os.path.join(_HERE, "src"))
+
+if sys.version_info < (3, 10):
+    sys.stderr.write("raddu: requires Python 3.10 or newer\n")
+    raise SystemExit(1)
+
+from raddu.cli import main  # noqa: E402
+
+if __name__ == "__main__":
+    raise SystemExit(main())
