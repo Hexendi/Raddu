@@ -306,15 +306,23 @@ def build_plan(pm: ui.Palette, cat, args, surahs, reciters) -> list:
 # information views
 # ---------------------------------------------------------------------------
 def show_reciters(pm: ui.Palette) -> None:
-    rows = [[r.code, r.name_en, r.name_ar, r.default_label_en,
-             ", ".join(s.code for s in r.styles if s.code != r.default_style) or "-",
-             str(len(r.codes))]
-            for r in catalog().reciters]
-    ui.table(pm, ["code", "reciter", "بالاسم", "default", "alt styles", "aliases"],
-             rows, aligns=["l", "l", "l", "l", "l", "r"])
+    flags = {"MR": "🇲🇷 Mauritanian", "SA": "🇸🇦 Saudi", "EG": "🇪🇬 Egyptian",
+             "SD": "🇸🇩 Sudanese", "MA": "🇲🇦 Moroccan", "LY": "🇱🇾 Libyan",
+             "QA": "🇶🇦 Qatari", "KW": "🇰🇼 Kuwaiti", "JO": "🇯🇴 Jordanian",
+             "PS": "🇵🇸 Palestinian", "TR": "🇹🇷 Turkish", "ID": "🇮🇩 Indonesian",
+             "IN": "🇮🇳 Indian", "PK": "🇵🇰 Pakistani", "DZ": "🇩🇿 Algerian",
+             "TN": "🇹🇳 Tunisian", "IQ": "🇮🇶 Iraqi", "YE": "🇾🇪 Yemeni"}
+    rows = []
+    for r in catalog().reciters:
+        alts = ", ".join(s.code for s in r.styles if s.code != r.default_style) or "-"
+        where = flags.get(r.nationality or "", r.nationality or "")
+        rows.append([r.code, r.name_en, r.name_ar, r.default_label_en, alts, where])
+    ui.table(pm, ["code", "reciter", "بالاسم", "default", "alt styles", "from"],
+             rows, aligns=["l", "l", "l", "l", "l", "l"])
     print()
     print("  " + pm(f"select one with:  {PROG} -<code>       e.g. {PROG} -sud", "grey"))
     print("  " + pm(f"alternate style:  {PROG} <code>:<style>  e.g. {PROG} -hus:qalun", "grey"))
+    print("  " + pm(f"search for a country:  {PROG} -f mauritanian", "grey"))
 
 
 def show_surahs(pm: ui.Palette) -> None:
