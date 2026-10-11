@@ -36,18 +36,6 @@ LOGO: tuple[str, ...] = (
     "╰────────────────╯",
 )
 
-# Block-letter wordmark, drawn large so the name reads as a wordmark rather
-# than as a line of running text.
-WORDMARK: tuple[str, ...] = (
-    "███████╗  ██████╗  ██████╗  ██████╗  ██╗   ██╗",
-    "╚══██╔══╝ ██╔══██╗██╔═══██╗██╔══██╗ ╚██╗ ██╔╝",
-    "   ██║    ██████╔╝██║   ██║██████╔╝  ╚████╔╝ ",
-    "   ██║    ██╔══██╗██║   ██║██╔══██╗   ╚██╔╝  ",
-    "   ██║    ██████╔╝╚██████╔╝██║  ██║   ██║   ",
-    "   ╚═╝    ╚═════╝  ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ",
-)
-
-
 def display_width(text: str) -> int:
     """Approximate terminal columns, skipping zero-width combining marks."""
     return sum(0 if unicodedata.combining(ch) else 1 for ch in text)
@@ -92,15 +80,13 @@ def term_width(default: int = 80) -> int:
 
 
 def banner(pm: Palette, version: str, subtitle: str = "terminal Quran player") -> None:
-    """Print the radio mark beside the block wordmark."""
-    rows = max(len(LOGO), len(WORDMARK))
-    pad = " " * display_width(LOGO[0])
-    top = (len(LOGO) - len(WORDMARK)) // 2 if len(LOGO) > len(WORDMARK) else 0
-    for i in range(rows):
-        left = LOGO[i] if i < len(LOGO) else pad
-        right = WORDMARK[i - top] if top <= i < top + len(WORDMARK) else ""
-        print((pm(left, "brand") + "  " + pm(right, "brand", "bold")).rstrip())
-    print(pm(f"  رَدْدُ   ·   {subtitle}   ·   v{version}", "brand"))
+    """Print the radio mark with the version set beside it."""
+    text = [pm(f"raddu v{version}", "bold", "brand"), pm(subtitle, "brand")]
+    top = max((len(LOGO) - len(text)) // 2, 0)
+    for i, row in enumerate(LOGO):
+        k = i - top
+        suffix = "   " + text[k] if 0 <= k < len(text) else ""
+        print((pm(row, "brand") + suffix).rstrip())
 
 
 def card(pm: Palette, rows: Sequence[tuple[str, str]], *, width: int | None = None) -> None:
