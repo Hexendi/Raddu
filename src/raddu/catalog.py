@@ -53,6 +53,9 @@ class Style:
     label_en: str
     surah_count: int
     missing: tuple[int, ...]
+    # Some sources do not use a uniform filename; when present this maps a
+    # surah number to the exact basename to fetch.
+    files: dict = field(default_factory=dict, compare=False, repr=False)
 
     def has(self, number: int) -> bool:
         return number not in self.missing
@@ -67,6 +70,8 @@ class Reciter:
     default_label_en: str
     codes: tuple[str, ...]
     styles: tuple[Style, ...]
+    nationality: str | None = None
+    source: str = "mp3quran.net"
     _by_style: dict = field(default_factory=dict, repr=False, compare=False)
 
     @property
@@ -88,7 +93,10 @@ class Track:
 
     @property
     def url(self) -> str:
-        return f"{self.style.server}{self.surah.number:03d}.mp3"
+        basename = self.style.files.get(self.surah.number)
+        if not basename:
+            basename = f"{self.surah.number:03d}.mp3"
+        return f"{self.style.server}{basename}"
 
     @property
     def filename(self) -> str:
@@ -97,6 +105,40 @@ class Track:
     def describe(self) -> str:
         return (f"Surah {self.surah.name_en} ({self.surah.number}) - "
                 f"{self.reciter.name_en} [{self.style.label_en}]")
+
+
+# ISO country code -> spellings a user might type into `raddu -f`
+COUNTRIES = {
+    "MR": ("mauritania", "mauritanian", "mrt"),
+    "SA": ("saudi", "saudi arabia", "sau"),
+    "EG": ("egypt", "egyptian", "egy"),
+    "SD": ("sudan", "sudanese", "sdn"),
+    "MA": ("morocco", "moroccan", "mar"),
+    "LY": ("libya", "libyan", "lby"),
+    "QA": ("qatar", "qatari", "qat"),
+    "KW": ("kuwait", "kuwaiti", "kwt"),
+    "DZ": ("algeria", "algerian", "dza"),
+    "TN": ("tunisia", "tunisian", "tun"),
+    "IQ": ("iraq", "iraqi", "irq"),
+    "TR": ("turkey", "turkish", "tur"),
+    "YE": ("yemen", "yemeni", "yem"),
+    "JO": ("jordan", "jordanian", "jor"),
+    "PS": ("palestine", "palestinian", "pse"),
+    "SY": ("syria", "syrian", "syr"),
+    "ID": ("indonesia", "indonesian", "idn"),
+    "IN": ("india", "indian", "ind"),
+    "PK": ("pakistan", "pakistani", "pak"),
+    "OM": ("oman", "omani", "omn"),
+    "BH": ("bahrain", "bahraini", "bhr"),
+    "LB": ("lebanon", "lebanese", "lbn"),
+}
+
+
+def _names_for(code: str | None) -> frozenset[str]:
+    """Lookup spellings for a country code, pre-normalised."""
+    if not code:
+        return frozenset()
+    return frozenset(_norm(n) for n in COUNTRIES.get(code, ()))
 
 
 class Catalog:
@@ -177,6 +219,8 @@ class Catalog:
                   or q in _norm(s.meaning_en) or q in _norm(s.name_ar)]
         reciters = [r for r in self.reciters
                     if q in _norm(r.name_en) or q in _norm(r.name_ar)
+                    or q in _norm(r.nationality or "")
+                    or q in _names_for(r.nationality)
                     or any(q in _norm(c) for c in r.codes)]
         return surahs, reciters
 
@@ -206,11 +250,14 @@ def _load_reciters() -> list[Reciter]:
             code=s["code"], moshaf_id=s["moshaf_id"], server=s["server"],
             label_ar=s["label_ar"], label_en=s["label_en"],
             surah_count=s["surah_count"], missing=tuple(s["missing"]),
+            files={int(k): v for k, v in (s.get("files") or {}).items()},
         ) for s in r["styles"])
         out.append(Reciter(
             code=r["code"], name_ar=r["name_ar"], name_en=r["name_en"],
             default_style=r["default_style"], default_label_en=r["default_label_en"],
             codes=tuple(r["codes"]), styles=styles,
+            nationality=r.get("nationality"),
+            source=r.get("source", "mp3quran.net"),
         ))
     return out
 
