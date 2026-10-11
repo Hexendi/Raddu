@@ -163,7 +163,7 @@ class Radio:
     def advance(self, chunk: int) -> None:
         self.done += chunk
         self.phase += 1
-        self._paint(up=self.ROWS - 1)
+        self._paint(up=self.ROWS)
 
     def stop(self) -> None:
         if self.started:
@@ -229,6 +229,9 @@ class Radio:
     def _paint(self, up: int = 0) -> None:
         if not self.live:
             return
+        # The block is exactly self.ROWS lines tall, so the cursor must move
+        # up by self.ROWS - not one less - to land on the first row again.
+        # Off by one and every frame appends a row, smearing the antenna.
         out = [f"\033[{up}A"] if up else []
         for row in self._lines():
             out.append("\r\033[K" + row + "\n")
