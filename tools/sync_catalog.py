@@ -29,14 +29,20 @@ SOURCES = {
     "alqurancloud_surah.json": "https://api.alquran.cloud/v1/surah",
     "mp3quran_suwar.json": "https://mp3quran.net/api/v3/suwar",
     "mp3quran_reciters_ar.json": "https://mp3quran.net/api/v3/reciters?language=ar",
+    # Not consumed by the generator; cached so the English spelling of a
+    # reciter can be cross-checked against the Arabic one.
+    "mp3quran_reciters_en.json": "https://mp3quran.net/api/v3/reciters?language=eng",
 }
 
 # --------------------------------------------------------------------------
 # Curated reciter selection.
 #
 # Each entry:  code -> {reciter_id, default moshaf_id, styles{name: moshaf_id}}
-# The list is deliberately capped at 10 well-known reciters; every moshaf id
-# below was resolved against the live mp3quran API dump.
+# Every moshaf id below was resolved against the live mp3quran API dump.
+#
+# Coverage is tracked per style in the generated data rather than assumed:
+# haz (al-Balushi) is known to be incomplete upstream, and the catalog
+# records exactly which surahs are absent so the tool can say so plainly.
 # --------------------------------------------------------------------------
 RECITERS: dict[str, dict] = {
     "sud": {
@@ -118,6 +124,30 @@ RECITERS: dict[str, dict] = {
         "name_en": "Ali Abdur-Rahman al-Hudhaify",
         "name_ar": "علي بن عبدالرحمن الحذيفي",
         "codes": ["hud", "hudhaify", "alhudhaify", "ali-hudhaify", "huthaify"],
+    },
+    "haz": {
+        "reciter_id": 231,
+        "default": 231,
+        "styles": {231: "hafs"},
+        "name_en": "Hazzaa al-Balushi",
+        "name_ar": "هزاع البلوشي",
+        "codes": ["haz", "hazza", "hezaa", "balushi", "hazaa", "albalushi"],
+    },
+    "luh": {
+        "reciter_id": 107,
+        "default": 107,
+        "styles": {107: "hafs"},
+        "name_en": "Muhammad al-Luhaidan",
+        "name_ar": "محمد اللحيدان",
+        "codes": ["luh", "luhaidan", "lhaydan", "althaydan", "al-luhaidan"],
+    },
+    "kha": {
+        "reciter_id": 229,
+        "default": 229,
+        "styles": {229: "hafs"},
+        "name_en": "Mohammad Khalil al-Qari",
+        "name_ar": "محمد خليل القارئ",
+        "codes": ["kha", "khalil", "alqari", "al-qari", "mohammad-khalil"],
     },
 }
 

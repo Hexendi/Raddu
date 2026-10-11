@@ -479,5 +479,105 @@
     "missing": []
    }
   ]
+ },
+ {
+  "code": "haz",
+  "name_ar": "هزاع البلوشي",
+  "name_en": "Hazzaa al-Balushi",
+  "default_style": "hafs",
+  "default_label_en": "Hafs an Asim",
+  "codes": [
+   "albalushi",
+   "balushi",
+   "haz",
+   "hazaa",
+   "hazza",
+   "hezaa"
+  ],
+  "styles": [
+   {
+    "code": "hafs",
+    "moshaf_id": 231,
+    "server": "https://cdn.mp3quran.net/audio/hazza-balushi/r1/",
+    "label_ar": "حفص عن عاصم",
+    "label_en": "Hafs an Asim",
+    "surah_count": 91,
+    "missing": [
+     2,
+     3,
+     4,
+     5,
+     7,
+     9,
+     10,
+     11,
+     16,
+     23,
+     24,
+     26,
+     27,
+     28,
+     33,
+     48,
+     58,
+     59,
+     60,
+     62,
+     64,
+     65,
+     66
+    ]
+   }
+  ]
+ },
+ {
+  "code": "luh",
+  "name_ar": "محمد اللحيدان",
+  "name_en": "Muhammad al-Luhaidan",
+  "default_style": "hafs",
+  "default_label_en": "Hafs an Asim",
+  "codes": [
+   "al-luhaidan",
+   "althaydan",
+   "lhaydan",
+   "luh",
+   "luhaidan"
+  ],
+  "styles": [
+   {
+    "code": "hafs",
+    "moshaf_id": 107,
+    "server": "https://cdn.mp3quran.net/audio/muhammad-luhaidan/r1/",
+    "label_ar": "حفص عن عاصم",
+    "label_en": "Hafs an Asim",
+    "surah_count": 114,
+    "missing": []
+   }
+  ]
+ },
+ {
+  "code": "kha",
+  "name_ar": "محمد خليل القارئ",
+  "name_en": "Mohammad Khalil al-Qari",
+  "default_style": "hafs",
+  "default_label_en": "Hafs an Asim",
+  "codes": [
+   "al-qari",
+   "alqari",
+   "kha",
+   "khalil",
+   "mohammad-khalil"
+  ],
+  "styles": [
+   {
+    "code": "hafs",
+    "moshaf_id": 229,
+    "server": "https://cdn.mp3quran.net/audio/muhammad-khalil/r1/",
+    "label_ar": "حفص عن عاصم",
+    "label_en": "Hafs an Asim",
+    "surah_count": 114,
+    "missing": []
+   }
+  ]
  }
 ]
