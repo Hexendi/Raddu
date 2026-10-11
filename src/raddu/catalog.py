@@ -158,12 +158,15 @@ class Catalog:
         if not style.has(surah.number):
             missing = ", ".join(str(n) for n in style.missing[:6])
             more = " ..." if len(style.missing) > 6 else ""
+            alts = [s.code for s in reciter.styles if s.code != style.code]
+            hint = (f"Try a different style: {', '.join(alts)}" if alts else
+                    f"{reciter.name_en} has no other recording - see "
+                    f"'raddu -R' for a reciter that covers all 114.")
             raise CatalogError(
                 f"{reciter.name_en} does not have Surah {surah.name_en} "
                 f"in the {style.label_en} recording "
                 f"(available {style.surah_count}/114; missing {missing}{more}). "
-                f"Try a different style: "
-                f"{', '.join(s.code for s in reciter.styles if s.code != style.code)}"
+                f"{hint}"
             )
         return Track(surah, reciter, style)
 
