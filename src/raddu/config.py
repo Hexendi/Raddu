@@ -20,6 +20,18 @@ def config_path() -> pathlib.Path:
     return config_dir() / "config.json"
 
 
+def data_dir() -> pathlib.Path:
+    base = os.environ.get("XDG_DATA_HOME") or pathlib.Path.home() / ".local" / "share"
+    return pathlib.Path(base) / APP
+
+
+def offline_dir() -> pathlib.Path:
+    custom = load().get("storage") or load().get("offline_dir")
+    if custom:
+        return pathlib.Path(custom).expanduser()
+    return data_dir() / "voices"
+
+
 def load() -> dict:
     p = config_path()
     if not p.exists():
@@ -73,6 +85,19 @@ def set_value(key: str, value: str) -> str:
                 f"unknown player {value!r}; known: "
                 + ", ".join(p.name for p in KNOWN_PLAYERS)
             )
+    if key in ("storage", "offline_dir"):
+        if value.lower() in ("clear", "none", "reset", "default"):
+            data = load()
+            data.pop("storage", None)
+            data.pop("offline_dir", None)
+            save(data)
+            return f"storage reset to default ({offline_dir()})"
+        p = pathlib.Path(value).expanduser()
+        p.mkdir(parents=True, exist_ok=True)
+        data = load()
+        data["storage"] = str(p)
+        save(data)
+        return f"storage = {p}"
     data = load()
     if value == "":
         data.pop(key, None)

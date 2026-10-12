@@ -129,16 +129,75 @@ class Session:
                 pass
             raise
 
-    def play(self, url: str, *, timeout: float = 30.0) -> int:
+    def play(self, source: str | pathlib.Path, *, timeout: float = 30.0) -> int:
+        local_path = None
+        if isinstance(source, pathlib.Path):
+            local_path = source
+        elif isinstance(source, str):
+            if source.startswith("file://"):
+                local_path = pathlib.Path(source.removeprefix("file://"))
+            elif not (source.startswith("http://") or source.startswith("https://")):
+                p = pathlib.Path(source)
+                if p.is_file():
+                    local_path = p
+
+        if local_path is not None:
+            return self._play_local(local_path)
+        return self._play_remote(str(source), timeout=timeout)
+
+    def _play_local(self, path: pathlib.Path) -> int:
+        if not path.is_file():
+            raise PlayerError(f"audio file not found: {path}")
+        total = path.stat().st_size
+        if self._on_total:
+            self._on_total(total)
+
         if self.spec.stdin_ok:
             self.proc = subprocess.Popen(
                 [self.spec.binary, *self.spec.args],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
-                # Unbuffered, as subprocess used to default to before 3.14:
-                # proc.stdin is then a plain FileIO whose close() neither
-                # flushes nor blocks, which is what _drop_stdin relies on.
+                bufsize=0,
+            )
+            self._stdin = self.proc.stdin
+            written = 0
+            try:
+                with open(path, "rb") as fh:
+                    while True:
+                        chunk = fh.read(net.CHUNK)
+                        if not chunk:
+                            break
+                        self._stdin.write(chunk)
+                        written += len(chunk)
+                        if self._on_chunk:
+                            self._on_chunk(len(chunk))
+                try:
+                    self._stdin.flush()
+                except (BrokenPipeError, ValueError):
+                    pass
+            except BrokenPipeError:
+                return 0
+            finally:
+                self._drop_stdin()
+            rc = self.proc.wait()
+            self.proc = None
+            if rc not in (0, None):
+                raise PlayerError(f"{self.spec.binary} exited with status {rc}.")
+            return written
+
+        argv = [self.spec.binary, *[a.format(file=str(path)) for a in self.spec.args]]
+        self.proc = subprocess.run(argv, stdout=subprocess.DEVNULL,
+                                   stderr=subprocess.DEVNULL)
+        return total
+
+    def _play_remote(self, url: str, *, timeout: float = 30.0) -> int:
+        if self.spec.stdin_ok:
+            self.proc = subprocess.Popen(
+                [self.spec.binary, *self.spec.args],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
                 bufsize=0,
             )
             self._stdin = self.proc.stdin
@@ -148,7 +207,6 @@ class Session:
                     on_total=self._on_total, on_chunk=self._on_chunk,
                 )
             except BrokenPipeError:
-                # player exited early (user pressed q) - that is a clean stop
                 return 0
             finally:
                 self._drop_stdin()

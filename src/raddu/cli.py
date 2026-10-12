@@ -10,7 +10,7 @@ import random
 import signal
 import sys
 
-from . import __version__, config, net, player as player_mod, ui
+from . import __version__, config, net, player as player_mod, storage, ui
 from .catalog import CatalogError, catalog, Reciter, Surah
 
 PROG = "raddu"
@@ -40,12 +40,16 @@ FLAGS = frozenset({
     "-h", "--help", "-V", "--version",
     "-s", "--list-surahs", "-R", "--list-reciters",
     "--list-players", "--url", "--json", "--no-banner", "--config",
+    "--offline", "--offline-list",
 })
 VALUE_OPTS = frozenset({
     "-n", "--count", "--surah", "--reciter", "--style", "-f", "--find",
-    "--player", "--timeout", "--seed", "--set", "--download",
+    "--player", "--timeout", "--seed", "--set", "--remove-voice",
 })
-OPTIONAL_VALUE_OPTS = frozenset({"-r", "--random", "--check"})
+OPTIONAL_VALUE_OPTS = frozenset({
+    "-r", "--random", "--check",
+    "-d", "--download", "--download-voice", "--install",
+})
 
 ReciterSpec = tuple["Reciter", "str | None"]
 
@@ -144,6 +148,10 @@ def build_epilog(pm: ui.Palette) -> str:
         f"{PROG} -yaseen -hus:mujawwad  Surah Yaseen, al-Husary, Mujawwad recitation",
         f"{PROG} -r -n 5 -aft           5 random surahs in the voice of al-Afasy",
         f"{PROG} -baqara -yaseen -aft -shr   playlist, voices alternate",
+        f"{PROG} -d sud                install the voice of as-Sudais for offline use",
+        f"{PROG} -baqara -sud -d       save Surah Al-Baqara offline in Sudais's voice",
+        f"{PROG} --offline             play only from offline storage (no network)",
+        f"{PROG} --offline-list        list all voices installed offline",
         f"{PROG} -R                    list every voice with its codes",
         f"{PROG} -s                    list all 114 surahs with their codes",
         f"{PROG} --check               verify which voices are reachable",
@@ -181,9 +189,9 @@ def build_parser(pm: ui.Palette) -> argparse.ArgumentParser:
 
     info = ap.add_argument_group("information")
     info.add_argument("-s", "--list-surahs", action="store_true",
-                      help="list all 114 surahs with their codes")
+                       help="list all 114 surahs with their codes")
     info.add_argument("-R", "--list-reciters", action="store_true",
-                      help="list all voices with their codes")
+                       help="list all voices with their codes")
     info.add_argument("-f", "--find", metavar="TEXT",
                       help="search surahs and voices by name")
     info.add_argument("--check", nargs="?", const="*", metavar="VOICE",
@@ -191,13 +199,22 @@ def build_parser(pm: ui.Palette) -> argparse.ArgumentParser:
     info.add_argument("--list-players", action="store_true",
                       help="show which audio players were found on PATH")
 
+    off = ap.add_argument_group("offline")
+    off.add_argument("-d", "--download", "--download-voice", "--install",
+                     nargs="?", const="*", metavar="VOICE|DIR", dest="download",
+                     help="save voice or surah(s) offline (or export to DIR)")
+    off.add_argument("--offline", action="store_true",
+                     help="play only from offline storage (never use network)")
+    off.add_argument("--offline-list", action="store_true",
+                     help="list voices installed for offline playback")
+    off.add_argument("--remove-voice", metavar="VOICE",
+                     help="remove an offline installed voice")
+
     out = ap.add_argument_group("output")
     out.add_argument("--url", action="store_true",
                      help="print the resolved URL(s) and exit")
     out.add_argument("--json", action="store_true",
                      help="print the resolved plan as JSON and exit")
-    out.add_argument("--download", metavar="DIR",
-                     help="download the surah(s) to DIR instead of playing")
     out.add_argument("--player", metavar="NAME",
                      help="force an audio player (default: auto-detect)")
     out.add_argument("--timeout", type=float, default=45.0, metavar="SEC",
@@ -319,9 +336,22 @@ def show_reciters(pm: ui.Palette) -> None:
         rows.append([r.code, r.name_en, r.name_ar, r.default_label_en, alts, where])
     ui.table(pm, ["code", "reciter", "بالاسم", "default", "alt styles", "from"],
              rows, aligns=["l", "l", "l", "l", "l", "l"])
+    installed = storage.list_installed()
+    if installed:
+        print()
+        print(pm("OFFLINE VOICES INSTALLED", "bold"))
+        for item in installed:
+            rec = catalog().find_reciter(item["reciter_code"])
+            rec_name = rec.name_en if rec else item["reciter_code"]
+            style = rec.style_by_code(item["style_code"]) if rec else None
+            max_c = style.surah_count if style else 114
+            print(f"  {pm('✓', 'green')} {item['reciter_code']:<6} {rec_name:<28} "
+                  f"[{item['style_code']}] {item['count']}/{max_c} surahs "
+                  f"({ui.human_size(item['total_bytes'])})")
     print()
     print("  " + pm(f"select one with:  {PROG} -<code>       e.g. {PROG} -sud", "brand"))
     print("  " + pm(f"alternate style:  {PROG} <code>:<style>  e.g. {PROG} -hus:qalun", "brand"))
+    print("  " + pm(f"install offline:  {PROG} -d <code>      e.g. {PROG} -d sud", "brand"))
     print("  " + pm(f"search for a country:  {PROG} -f mauritanian", "brand"))
 
 
@@ -363,10 +393,52 @@ def show_config(pm: ui.Palette) -> None:
     if not data:
         print(pm(f"no settings saved ({path})", "brand"))
         print(f"  built-in default voice: {config.default_reciter()}")
+        print(f"  offline storage dir:    {storage.offline_dir()}")
         return
     print(f"  {pm(str(path), 'grey')}")
     ui.table(pm, ["key", "value"],
              [[k, json.dumps(v, ensure_ascii=False)] for k, v in sorted(data.items())])
+    print(f"  offline storage dir: {storage.offline_dir()}")
+
+
+def show_offline_list(pm: ui.Palette) -> None:
+    installed = storage.list_installed()
+    if not installed:
+        print(pm(f"no voices installed offline yet ({storage.offline_dir()})", "brand"))
+        print(f"  install one with:  {PROG} -d <code>       e.g. {PROG} -d sud")
+        print(f"  or install surah:  {PROG} -baqara -sud -d")
+        return
+    print(pm(f"OFFLINE VOICES ({storage.offline_dir()})", "bold"))
+    rows = []
+    cat = catalog()
+    total_bytes = 0
+    total_surahs = 0
+    for item in installed:
+        rec = cat.find_reciter(item["reciter_code"])
+        rec_name = rec.name_en if rec else item["reciter_code"]
+        size_str = ui.human_size(item["total_bytes"])
+        total_bytes += item["total_bytes"]
+        total_surahs += item["count"]
+        style = rec.style_by_code(item["style_code"]) if rec else None
+        max_count = style.surah_count if style else 114
+        count_display = f"{item['count']}/{max_count}"
+        rows.append([item["reciter_code"], rec_name, item["style_code"], count_display, size_str])
+    ui.table(pm, ["code", "reciter", "style", "surahs", "size"], rows,
+             aligns=["l", "l", "l", "r", "r"])
+    print()
+    print(pm(f"total: {total_surahs} surah(s), {ui.human_size(total_bytes)}", "brand"))
+
+
+def do_remove_voice(pm: ui.Palette, cat, token: str) -> int:
+    rec, style_code = parse_reciter(cat, token)
+    count, size = storage.remove_voice(rec.code, style_code)
+    if not count:
+        print(pm(f"no offline files found for {rec.name_en} ({token})", "yellow"))
+        return EXIT_OK
+    style_msg = f" [{style_code}]" if style_code else ""
+    print(pm(f"removed {count} offline file(s) for {rec.name_en}{style_msg} "
+             f"({ui.human_size(size)} freed)", "green"))
+    return EXIT_OK
 
 
 # ---------------------------------------------------------------------------
@@ -375,15 +447,21 @@ def show_config(pm: ui.Palette) -> None:
 def describe_track(pm: ui.Palette, track) -> None:
     s, r, st = track.surah, track.reciter, track.style
     style = st.label_en if st.code == r.default_style else f"{st.label_en} ({st.code})"
+    if track.is_offline:
+        source_val = f"{track.local_path}  {pm('[offline]', 'green')}"
+        voice_val = f"{r.name_en}  {r.code}   {r.name_ar}  {pm('[offline]', 'green')}"
+    else:
+        source_val = track.url
+        voice_val = f"{r.name_en}  {r.code}   {r.name_ar}"
     ui.card(pm, [
         ("", ""),
         ("SURAH", f"{s.name_en}  #{s.number}   {s.name_ar}"),
         ("", f"{s.meaning_en} · {s.ayahs} ayahs · {s.revelation.capitalize()}"),
         ("", ""),
-        ("VOICE", f"{r.name_en}  {r.code}   {r.name_ar}"),
+        ("VOICE", voice_val),
         ("", f"{style}" + (f"   🇲🇷 {r.nationality}" if r.nationality else "")),
         ("", ""),
-        ("SOURCE", track.url),
+        ("SOURCE", source_val),
     ])
 
 
@@ -425,28 +503,76 @@ def do_check(pm: ui.Palette, cat, args, planned: list, user_selected: bool) -> i
     return EXIT_OK if bad == 0 else EXIT_FAIL
 
 
-def do_download(pm: ui.Palette, planned: list, dest: str) -> int:
-    out = pathlib.Path(dest).expanduser()
-    out.mkdir(parents=True, exist_ok=True)
+def do_download(pm: ui.Palette, planned: list, dest: str | None = None) -> int:
+    is_offline_install = dest is None or dest == "*"
+    if is_offline_install:
+        base_dir = storage.offline_dir()
+        header = f"installing {len(planned)} surah(s) offline to {base_dir}"
+    else:
+        base_dir = pathlib.Path(dest).expanduser()
+        base_dir.mkdir(parents=True, exist_ok=True)
+        header = f"downloading {len(planned)} surah(s) to {base_dir}"
+
+    print(pm(header, "brand"))
+    print()
+
     failures = 0
+    skipped = 0
+    saved = 0
+    total_bytes = 0
+
     for i, track in enumerate(planned, 1):
-        dest_file = out / track.filename
+        if is_offline_install:
+            dest_file = track.offline_path
+            dest_file.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            dest_file = base_dir / track.filename
+
+        if dest_file.is_file() and dest_file.stat().st_size > 0:
+            print(f"  [{i}/{len(planned)}] {pm(track.describe(), 'bold')} "
+                  f"{pm('(already installed)', 'grey')}")
+            skipped += 1
+            total_bytes += dest_file.stat().st_size
+            continue
+
+        tmp_file = dest_file.with_suffix(".tmp")
         viz = ui.Visualizer(f"[{i}/{len(planned)}] {track.surah.name_en}")
-        print(f"  {pm(track.describe(), 'bold')}")
+        print(f"  [{i}/{len(planned)}] {pm(track.describe(), 'bold')}")
         try:
-            with open(dest_file, "wb") as fh:
-                net.download(track.url, fh, timeout=90.0, on_chunk=viz.advance)
-            print(f"  {pm('saved', 'green')} {dest_file} "
-                  f"{pm(ui.human_size(dest_file.stat().st_size), 'grey')}")
+            with open(tmp_file, "wb") as fh:
+                written = net.download(
+                    track.url, fh, timeout=90.0,
+                    on_total=viz.start, on_chunk=viz.advance,
+                )
+            tmp_file.replace(dest_file)
+            saved += 1
+            total_bytes += written
+            print(f"  {pm('saved', 'green')} {dest_file.name} "
+                  f"{pm(ui.human_size(written), 'grey')}")
         except KeyboardInterrupt:
             viz.stop()
-            dest_file.unlink(missing_ok=True)
+            tmp_file.unlink(missing_ok=True)
             raise
         except (net.NetworkError, OSError) as exc:
+            tmp_file.unlink(missing_ok=True)
             print(f"  {pm('FAILED', 'red')} {exc}")
             failures += 1
         finally:
             viz.stop()
+
+    print()
+    if is_offline_install:
+        if saved or skipped:
+            summary = f"offline library: {saved} new, {skipped} existing ({ui.human_size(total_bytes)} total)"
+            print(pm("  " + summary, "green"))
+            reciters = {t.reciter.code for t in planned}
+            if len(reciters) == 1:
+                rec_code = next(iter(reciters))
+                print(pm(f"  play anytime offline: {PROG} -{rec_code}", "brand"))
+    else:
+        if saved:
+            print(pm(f"  saved {saved} file(s) to {base_dir}", "green"))
+
     return EXIT_FAIL if failures else EXIT_OK
 
 
@@ -467,15 +593,29 @@ def do_play(pm: ui.Palette, planned: list, args) -> int:
         print()
         viz = ui.Visualizer(f"{track.surah.name_en} · {track.reciter.name_en}")
         try:
+            if track.is_offline:
+                play_source = track.local_path
+            else:
+                if getattr(args, "offline", False):
+                    raise CatalogError(
+                        f"Surah {track.surah.name_en} ({track.surah.number}) in the voice of "
+                        f"{track.reciter.name_en} is not installed offline.\n"
+                        f"       Run '{PROG} -d -{track.surah.slug} -{track.reciter.code}' to download."
+                    )
+                play_source = track.url
+
             with player_mod.Session(spec, on_total=viz.start,
                                      on_chunk=viz.advance) as s:
-                s.play(track.url, timeout=args.timeout)
+                s.play(play_source, timeout=args.timeout)
             print(pm("  done.", "brand"))
         except KeyboardInterrupt:
             print(pm("\n  stopped.", "brand"))
             return EXIT_OK
-        except (net.NetworkError, player_mod.PlayerError) as exc:
+        except (net.NetworkError, player_mod.PlayerError, CatalogError) as exc:
             print(pm(f"  error: {exc}", "red"))
+            if isinstance(exc, net.NetworkError) and not track.is_offline:
+                print(pm(f"  note: voice '{track.reciter.code}' is not installed offline. "
+                         f"Install with '{PROG} -d {track.reciter.code}'", "yellow"))
             failures += 1
         finally:
             viz.stop()
@@ -522,6 +662,11 @@ def _main(argv: list[str] | None = None) -> int:
     if args.list_players:
         show_players(pm)
         return EXIT_OK
+    if getattr(args, "offline_list", False):
+        show_offline_list(pm)
+        return EXIT_OK
+    if getattr(args, "remove_voice", None):
+        return do_remove_voice(pm, catalog(), args.remove_voice)
 
     cat = catalog()
 
@@ -540,6 +685,18 @@ def _main(argv: list[str] | None = None) -> int:
 
         surahs, reciters = resolve_selectors(pm, cat, selectors)
 
+        download_target_dir = None
+        if args.download is not None and args.download != "*":
+            try:
+                rec_spec = parse_reciter(cat, args.download)
+                reciters = [rec_spec, *reciters]
+            except CatalogError:
+                try:
+                    sur_spec = parse_surah(cat, args.download)
+                    surahs = [sur_spec, *surahs]
+                except CatalogError:
+                    download_target_dir = args.download
+
         if args.random not in (None, "*"):
             reciters = [parse_reciter(cat, args.random), *reciters]
         if args.surah:
@@ -549,7 +706,22 @@ def _main(argv: list[str] | None = None) -> int:
         if args.count is not None and args.count < 1:
             raise CatalogError("--count must be 1 or more")
 
-        planned = build_plan(pm, cat, args, surahs, reciters)
+        if args.download is not None and download_target_dir is None:
+            if not surahs and args.random is None and args.count is None:
+                if not reciters:
+                    code = config.default_reciter()
+                    reciters = [(cat.find_reciter(code) or cat.reciters[0], None)]
+                planned = []
+                fallback_style = args.style or config.load().get("style")
+                for rec, style_code in reciters:
+                    style = cat.style_for(rec, style_code or fallback_style)
+                    for s in cat.surahs:
+                        if style.has(s.number):
+                            planned.append(cat.track(s, rec, style.code))
+            else:
+                planned = build_plan(pm, cat, args, surahs, reciters)
+        else:
+            planned = build_plan(pm, cat, args, surahs, reciters)
     except CatalogError as exc:
         return die(pm, str(exc))
 
@@ -569,23 +741,36 @@ def _main(argv: list[str] | None = None) -> int:
     if args.check is not None:
         return do_check(pm, cat, args, planned, user_selected)
 
+    if getattr(args, "offline", False):
+        missing_offline = [t for t in planned if not t.is_offline]
+        if missing_offline:
+            t = missing_offline[0]
+            return die(pm, f"Surah {t.surah.name_en} ({t.surah.number}) in the voice of "
+                           f"{t.reciter.name_en} is not installed offline.\n"
+                           f"       Download it with: {PROG} -d -{t.surah.slug} -{t.reciter.code}")
+
     if args.json:
         print(json.dumps([
             {"surah": t.surah.number, "surah_name": t.surah.name_en,
              "slug": t.surah.slug, "ayahs": t.surah.ayahs,
              "reciter": t.reciter.code, "reciter_name": t.reciter.name_en,
-             "style": t.style.code, "style_name": t.style.label_en, "url": t.url}
+             "style": t.style.code, "style_name": t.style.label_en, "url": t.url,
+             "offline": t.is_offline,
+             "local_path": str(t.local_path) if t.is_offline else None}
             for t in planned], ensure_ascii=False, indent=2))
         return EXIT_OK
 
     if args.url:
         for t in planned:
-            print(t.url)
+            if args.offline and t.is_offline:
+                print(t.local_path)
+            else:
+                print(t.url)
         return EXIT_OK
 
-    if args.download:
+    if args.download is not None:
         sys.stdout.flush()  # keep stdout ahead of the stderr progress bar
-        return do_download(pm, planned, args.download)
+        return do_download(pm, planned, download_target_dir)
 
     sys.stdout.flush()
     return do_play(pm, planned, args)

@@ -102,9 +102,25 @@ class Track:
     def filename(self) -> str:
         return f"{self.surah.filename}-{self.reciter.code}-{self.style.code}.mp3"
 
+    @property
+    def offline_path(self) -> pathlib.Path:
+        from . import storage
+        return storage.track_path(self)
+
+    @property
+    def local_path(self) -> pathlib.Path | None:
+        from . import storage
+        return storage.get_offline_file(self)
+
+    @property
+    def is_offline(self) -> bool:
+        from . import storage
+        return storage.is_offline(self)
+
     def describe(self) -> str:
+        tag = " [offline]" if self.is_offline else ""
         return (f"Surah {self.surah.name_en} ({self.surah.number}) - "
-                f"{self.reciter.name_en} [{self.style.label_en}]")
+                f"{self.reciter.name_en} [{self.style.label_en}]{tag}")
 
 
 # ISO country code -> spellings a user might type into `raddu -f`

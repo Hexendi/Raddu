@@ -132,6 +132,7 @@ def stream(
 
 
 def download(url: str, dest, *, timeout: float = 60.0,
+             on_total: Callable[[int], None] | None = None,
              on_chunk: Callable[[int], None] | None = None) -> int:
     """Stream ``url`` to an open binary file object at ``dest``."""
-    return stream(url, dest, timeout=timeout, on_chunk=on_chunk)
+    return stream(url, dest, timeout=timeout, on_total=on_total, on_chunk=on_chunk)

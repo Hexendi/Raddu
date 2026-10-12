@@ -149,6 +149,27 @@ raddu -yaseen --style warsh    # applies to whichever voice is selected
 If a style does not contain the surah you asked for, `raddu` says so and
 lists the styles that do — rather than failing with a 404.
 
+### Offline voices & saving
+
+Install any voice or surah offline so you can play without an internet connection:
+
+```bash
+raddu -d sud                  # install the full voice (all 114 surahs) for as-Sudais
+raddu -d                      # install all 114 surahs for your default voice
+raddu -baqara -sud -d         # save Surah Al-Baqara offline for as-Sudais
+raddu --offline-list          # list all voices and surahs installed offline
+raddu --offline -baqara -sud  # play strictly from offline storage (no network)
+raddu --remove-voice sud      # remove downloaded audio for a voice
+```
+
+When you use `raddu` normally (e.g. `raddu -baqara -sud`), if the audio is already downloaded offline, `raddu` plays directly from your local disk with zero network latency and no buffering.
+
+To export audio to a specific folder instead of the offline library, pass the folder path:
+
+```bash
+raddu -baqara -sud --download ~/Music/Quran/
+```
+
 ---
 
 ## The voices
@@ -251,13 +272,21 @@ raddu --set reciter=clear      # back to the built-in default
 | `--list-players` | show which audio players were found |
 | `-h`, `--help` | help, including every voice and surah code |
 
+### Offline & Downloads
+
+| option | meaning |
+|---|---|
+| `-d`, `--download [VOICE\|DIR]` | save voice or surah(s) offline (or export to `DIR`) |
+| `--offline` | play strictly from offline storage (never use network) |
+| `--offline-list` | list voices and surahs installed offline |
+| `--remove-voice VOICE` | remove an offline installed voice |
+
 ### Output
 
 | option | meaning |
 |---|---|
 | `--url` | print the resolved URL(s) and exit |
 | `--json` | print the resolved plan as JSON and exit |
-| `--download DIR` | save the surah(s) to `DIR` instead of playing |
 | `--player NAME` | force a specific audio player |
 | `--timeout SEC` | network timeout (default 45) |
 | `--no-banner` | suppress the header and per-track details |
@@ -281,6 +310,7 @@ Settings live in `~/.config/raddu/config.json` (respects `XDG_CONFIG_HOME`).
 raddu --set reciter=sud
 raddu --set style=hafs
 raddu --set player=mpv
+raddu --set storage=~/.local/share/raddu/voices   # custom offline storage path
 raddu --config
 ```
 

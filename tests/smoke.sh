@@ -159,6 +159,33 @@ expect_eq "cleared setting falls back to default" "https://cdn.mp3quran.net/audi
           "$(XDG_CONFIG_HOME="$cfgdir" "$RADDU" -baqara --url 2>/dev/null)"
 rm -rf "$cfgdir"
 
+head_ "offline voices"
+expect_contains "help mentions -d"            "-d"       "$RADDU" -h
+expect_contains "help mentions --offline"     "offline"  "$RADDU" -h
+expect_eq "-d sud plans 114 surahs" "114" \
+          "$("$RADDU" -d sud --url 2>/dev/null | wc -l | tr -d ' ')"
+expect_eq "-d haz plans 91 surahs" "91" \
+          "$("$RADDU" -d haz --url 2>/dev/null | wc -l | tr -d ' ')"
+expect_rc "--offline fails cleanly when missing" 2 "$RADDU" -baqara -sud --offline
+expect_contains "--offline-list reports empty when none" "no voices" "$RADDU" --offline-list
+
+datadir="${XDG_DATA_HOME:-/tmp/opencode/raddu-test-data}"
+rm -rf "$datadir"; mkdir -p "$datadir/raddu/voices/sud/hafs"
+# simulate an offline cached surah
+echo "dummy-audio" > "$datadir/raddu/voices/sud/hafs/114-naas.mp3"
+expect_eq "--offline --url resolves local file when present" \
+          "$datadir/raddu/voices/sud/hafs/114-naas.mp3" \
+          "$(XDG_DATA_HOME="$datadir" "$RADDU" -naas -sud --offline --url 2>/dev/null)"
+expect_contains "--offline --json reports offline: true" '"offline": true' \
+          env XDG_DATA_HOME="$datadir" "$RADDU" -naas -sud --json
+expect_contains "--offline-list shows installed voice" "sud" \
+          env XDG_DATA_HOME="$datadir" "$RADDU" --offline-list
+expect_contains "-R shows offline installed section" "OFFLINE VOICES INSTALLED" \
+          env XDG_DATA_HOME="$datadir" "$RADDU" -R
+out="$(XDG_DATA_HOME="$datadir" "$RADDU" --remove-voice sud 2>&1)"
+if [[ "$out" == *removed* ]]; then ok "--remove-voice removes files"; else bad "--remove-voice removes files" "removed" "$out"; fi
+rm -rf "$datadir"
+
 if [[ "$OFFLINE" == "1" ]]; then
   head_ "network tests skipped (--offline)"
 else
@@ -186,6 +213,21 @@ else
     bad "--download" "exit 0" "nonzero"
   fi
   rm -rf "$tmp"
+
+  tmpdata="$(mktemp -d)"
+  if XDG_DATA_HOME="$tmpdata" "$RADDU" -naas -sud -d >/dev/null 2>&1; then
+    f="$tmpdata/raddu/voices/sud/hafs/114-naas.mp3"
+    if [[ -f "$f" ]]; then
+      sz=$(wc -c < "$f")
+      if [[ "$sz" -gt 100000 ]]; then ok "-d saved real offline MP3 ($sz bytes)"
+      else bad "-d saved real offline MP3" ">100000 bytes" "$sz"; fi
+    else
+      bad "-d saved real offline MP3" "114-naas.mp3" "missing"
+    fi
+  else
+    bad "-d" "exit 0" "nonzero"
+  fi
+  rm -rf "$tmpdata"
 fi
 
 printf '\n  %s%d passed%s, %s%d failed%s\n\n' "$c_g" "$PASS" "$c_0" \
