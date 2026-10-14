@@ -536,13 +536,13 @@ def do_download(pm: ui.Palette, planned: list, dest: str | None = None) -> int:
             continue
 
         tmp_file = dest_file.with_suffix(".tmp")
-        viz = ui.Visualizer(f"[{i}/{len(planned)}] {track.surah.name_en}")
+        prog = ui.ProgressBar(f"[{i}/{len(planned)}] {track.surah.name_en}")
         print(f"  [{i}/{len(planned)}] {pm(track.describe(), 'bold')}")
         try:
             with open(tmp_file, "wb") as fh:
                 written = net.download(
                     track.url, fh, timeout=90.0,
-                    on_total=viz.start, on_chunk=viz.advance,
+                    on_total=prog.start, on_chunk=prog.advance,
                 )
             tmp_file.replace(dest_file)
             saved += 1
@@ -550,15 +550,18 @@ def do_download(pm: ui.Palette, planned: list, dest: str | None = None) -> int:
             print(f"  {pm('saved', 'green')} {dest_file.name} "
                   f"{pm(ui.human_size(written), 'grey')}")
         except KeyboardInterrupt:
-            viz.stop()
+            prog.stop()
             tmp_file.unlink(missing_ok=True)
             raise
         except (net.NetworkError, OSError) as exc:
             tmp_file.unlink(missing_ok=True)
-            print(f"  {pm('FAILED', 'red')} {exc}")
+            if isinstance(exc, net.NetworkError) and exc.offline:
+                print(f"  {pm('FAILED', 'red')} offline: no internet connection.")
+            else:
+                print(f"  {pm('FAILED', 'red')} {exc}")
             failures += 1
         finally:
-            viz.stop()
+            prog.stop()
 
     print()
     if is_offline_install:
@@ -612,10 +615,14 @@ def do_play(pm: ui.Palette, planned: list, args) -> int:
             print(pm("\n  stopped.", "brand"))
             return EXIT_OK
         except (net.NetworkError, player_mod.PlayerError, CatalogError) as exc:
-            print(pm(f"  error: {exc}", "red"))
-            if isinstance(exc, net.NetworkError) and not track.is_offline:
-                print(pm(f"  note: voice '{track.reciter.code}' is not installed offline. "
-                         f"Install with '{PROG} -d {track.reciter.code}'", "yellow"))
+            if isinstance(exc, net.NetworkError) and exc.offline:
+                print(pm("  offline: no internet connection.", "red"))
+                if not track.is_offline:
+                    print(pm(f"  voice '{track.reciter.code}' is not installed offline. "
+                             f"Install it with '{PROG} -d {track.reciter.code}' "
+                             f"to play without a connection.", "yellow"))
+            else:
+                print(pm(f"  error: {exc}", "red"))
             failures += 1
         finally:
             viz.stop()

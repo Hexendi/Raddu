@@ -45,6 +45,10 @@ class AudioSink(Protocol):
 class NetworkError(Exception):
     """User-facing network failure with a readable message."""
 
+    def __init__(self, message: str, *, offline: bool = False) -> None:
+        super().__init__(message)
+        self.offline = offline
+
 
 def _open(url: str, timeout: float, *, probe: bool = False):
     headers = {"User-Agent": USER_AGENT, "Accept": "*/*"}
@@ -56,24 +60,26 @@ def _open(url: str, timeout: float, *, probe: bool = False):
     except urllib.error.HTTPError as exc:
         if exc.code == 403:
             raise NetworkError(
-                f"access denied by the CDN (HTTP 403) for {url}\n"
-                "       this recording is not publicly streamable; "
+                "access denied by the audio server (HTTP 403): "
+                "this recording is not publicly streamable; "
                 "run 'raddu --check' to see which voices are reachable."
             ) from exc
         if exc.code == 404:
             raise NetworkError(
-                f"not found (HTTP 404): {url}\n"
-                "       the file may be missing upstream - try another style "
+                "audio not found on the server (HTTP 404): "
+                "the file may be missing upstream - try another style "
                 "with --style."
             ) from exc
-        raise NetworkError(f"HTTP {exc.code} ({exc.reason}) for {url}") from exc
+        raise NetworkError(f"audio server error (HTTP {exc.code})") from exc
     except urllib.error.URLError as exc:
-        raise NetworkError(
-            f"could not reach {url}: {exc.reason}\n"
-            "       check your internet connection."
-        ) from exc
-    except TimeoutError as exc:
-        raise NetworkError(f"timed out after {timeout:g}s fetching {url}") from exc
+        # Any failure to reach the server (DNS, refused, unreachable, ...)
+        # is reported as a plain offline message. The raw URL and the
+        # low-level errno ("Temporary failure in name resolution", ...)
+        # are deliberately hidden: the user only needs to know they are
+        # offline.
+        raise NetworkError("no internet connection", offline=True) from exc
+    except (TimeoutError, OSError) as exc:
+        raise NetworkError("no internet connection", offline=True) from exc
 
 
 def probe(url: str, timeout: float = 20.0) -> int:
@@ -110,9 +116,9 @@ def stream(
         while True:
             try:
                 chunk = resp.read(CHUNK)
-            except TimeoutError as exc:
+            except (TimeoutError, OSError) as exc:
                 raise NetworkError(
-                    f"connection stalled while streaming {url}"
+                    "connection lost while streaming", offline=True
                 ) from exc
             if not chunk:
                 break

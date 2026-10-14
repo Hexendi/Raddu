@@ -10,6 +10,7 @@ import os
 import shutil
 import sys
 import threading
+import time
 import unicodedata
 from typing import Iterable, Sequence
 
@@ -286,6 +287,74 @@ class Visualizer:
             out.append("\r\033[K" + row + "\n")
         self.stream.write("".join(out))
         self.stream.flush()
+
+
+class ProgressBar:
+    """Single-line download progress bar, used only at download time.
+
+    Playback keeps the animated :class:`Visualizer`; installing surahs
+    (``-d`` / ``--download``) shows this plain bar instead of the voice
+    art so the percentage and byte counts stay readable.
+    """
+
+    def __init__(self, label: str = "", stream=None, width: int = 28) -> None:
+        self.stream = stream or sys.stderr
+        self.label = label
+        self.width = width
+        self.total = 0
+        self.done = 0
+        self.started = False
+        self.live = hasattr(self.stream, "isatty") and self.stream.isatty()
+        self._last = 0.0
+
+    # -- progress hooks (match net.stream's callback signature) ---------
+    def start(self, total: int) -> None:
+        self.total = total or 0
+        self.done = 0
+        self.started = True
+        self._render(force=True)
+
+    def advance(self, chunk: int) -> None:
+        self.done += chunk
+        self._render()
+
+    def stop(self) -> None:
+        if self.started and self.live:
+            try:
+                self.stream.write("\r\033[K")
+                self.stream.flush()
+            except (ValueError, OSError):
+                pass
+        self.started = False
+        self._last = 0.0
+
+    def _render(self, force: bool = False) -> None:
+        if not self.live or not self.started:
+            return
+        now = time.monotonic()
+        if not force and now - self._last < 0.08:
+            return
+        self._last = now
+        if not self.total:
+            line = f"  {self.label} connecting…"
+            try:
+                self.stream.write("\r\033[K" + line[: term_width() - 1])
+                self.stream.flush()
+            except (ValueError, OSError):
+                pass
+            return
+        frac = min(self.done / self.total, 1.0)
+        room = max(term_width() - 42 - len(self.label), 10)
+        bar_w = max(10, min(self.width, room))
+        filled = int(bar_w * frac)
+        bar = "█" * filled + "░" * (bar_w - filled)
+        line = (f"  {self.label} {bar} {frac * 100:5.1f}%  "
+                f"{human_size(self.done)}/{human_size(self.total)}")
+        try:
+            self.stream.write("\r\033[K" + line[: term_width() - 1])
+            self.stream.flush()
+        except (ValueError, OSError):
+            pass
 
 
 def rule(pm: Palette, width: int | None = None) -> None:

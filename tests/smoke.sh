@@ -118,6 +118,49 @@ assert len(v._lines()) == v.rows(), "row count drift after resize"
 sys.exit(0)
 PY
 then ok "visualizer is mirrored and fixed-height"; else bad "visualizer is mirrored and fixed-height" "clean exit" "raised"; fi
+
+head_ "download progress bar"
+if PYTHONPATH="$ROOT/src" python3 - <<'PY'
+import io, sys, time
+from raddu import ui
+# A tty draws the bar; a pipe stays silent so downloads can be scripted.
+class TTY(io.StringIO):
+    def isatty(self): return True
+s = TTY()
+bar = ui.ProgressBar("[1/2] Al-Baqara", stream=s)
+bar.start(1000)
+time.sleep(0.09); bar.advance(250)
+time.sleep(0.09); bar.advance(750)
+bar.stop()
+out = s.getvalue()
+assert "25.0%" in out and "100.0%" in out and "█" in out, "bar did not render"
+plain = io.StringIO()
+b2 = ui.ProgressBar("x", stream=plain)
+b2.start(100); b2.advance(50); b2.stop()
+assert plain.getvalue() == "", "non-tty download should be silent"
+sys.exit(0)
+PY
+then ok "download shows a progress bar on a tty, silent when piped"; else bad "download shows a progress bar on a tty, silent when piped" "clean exit" "raised"; fi
+
+head_ "offline network error is friendly"
+if PYTHONPATH="$ROOT/src" python3 - <<'PY'
+import os
+# A dead proxy stands in for "no internet": the connection is refused.
+for k in ("http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY"):
+    os.environ[k] = "http://127.0.0.1:9"
+from raddu import net
+try:
+    net.probe("https://cdn.mp3quran.net/audio/abdulrahman-sudais/r1/002.mp3", timeout=3)
+except net.NetworkError as exc:
+    msg = str(exc)
+    assert exc.offline, "not flagged offline"
+    assert "no internet connection" in msg, msg
+    assert "Errno" not in msg and "http" not in msg.lower(), msg
+else:
+    raise AssertionError("expected a NetworkError")
+import sys; sys.exit(0)
+PY
+then ok "unreachable host maps to 'no internet connection'"; else bad "unreachable host maps to 'no internet connection'" "clean exit" "raised"; fi
 expect_eq "--style override"       "https://cdn.mp3quran.net/audio/mahmoud-husary/r5/036.mp3" \
                                   "$("$RADDU" -yaseen -hus --style qalun --url 2>/dev/null)"
 expect_eq "playlist alternates voices" \
