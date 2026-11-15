@@ -85,6 +85,32 @@ def set_value(key: str, value: str) -> str:
                 f"unknown player {value!r}; known: "
                 + ", ".join(p.name for p in KNOWN_PLAYERS)
             )
+    if key == "salawat":
+        from .salawat import SalawatError, parse_minutes
+        try:
+            minutes = parse_minutes(value)
+        except SalawatError as exc:
+            raise CatalogError(str(exc)) from None
+        data = load()
+        if minutes is None:
+            data.pop("salawat", None)
+            save(data)
+            return "salawat reminder off"
+        data["salawat"] = f"{minutes:g}"
+        save(data)
+        return f"salawat = every {minutes:g} minute(s)"
+    if key == "salawat_file":
+        data = load()
+        if value.lower() in ("clear", "none", "reset", "default", ""):
+            data.pop("salawat_file", None)
+            save(data)
+            return "salawat_file cleared - using the built-in clip (al-Ahzab 33:56)"
+        p = pathlib.Path(value).expanduser().resolve()
+        if not p.is_file():
+            raise CatalogError(f"salawat_file: no such file {str(p)!r}")
+        data["salawat_file"] = str(p)
+        save(data)
+        return f"salawat_file = {p}"
     if key in ("storage", "offline_dir"):
         if value.lower() in ("clear", "none", "reset", "default"):
             data = load()

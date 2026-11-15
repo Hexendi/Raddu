@@ -130,6 +130,8 @@ class Reminder:
         self._stop = threading.Event()
         self._lock = threading.Lock()
         self._clip_proc: subprocess.Popen | None = None
+        self._idle = threading.Event()
+        self._idle.set()
         self._thread = threading.Thread(target=self._run, name="salawat", daemon=True)
 
     def attach(self, session, viz=None) -> None:
@@ -138,6 +140,10 @@ class Reminder:
     def start(self) -> "Reminder":
         self._thread.start()
         return self
+
+    def wait_idle(self) -> None:
+        """Block while a clip is playing (used between surahs)."""
+        self._idle.wait()
 
     def stop(self) -> None:
         self._stop.set()
@@ -152,6 +158,13 @@ class Reminder:
             self.play_once()
 
     def play_once(self) -> None:
+        self._idle.clear()
+        try:
+            self._interleave()
+        finally:
+            self._idle.set()
+
+    def _interleave(self) -> None:
         session = self.session
         target = getattr(session, "proc", None)
         paused = pause(target)

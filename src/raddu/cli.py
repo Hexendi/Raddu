@@ -10,7 +10,7 @@ import random
 import signal
 import sys
 
-from . import __version__, config, net, player as player_mod, storage, ui
+from . import __version__, config, net, player as player_mod, salawat, storage, ui
 from .catalog import CatalogError, catalog, Reciter, Surah, Track
 
 PROG = "raddu"
@@ -40,7 +40,7 @@ FLAGS = frozenset({
     "-h", "--help", "-V", "--version",
     "-s", "--list-surahs", "-R", "--list-reciters",
     "--list-players", "--url", "--json", "--no-banner", "--config",
-    "--offline", "--offline-list",
+    "--offline", "--offline-list", "--no-salawat",
 })
 VALUE_OPTS = frozenset({
     "-n", "--count", "--surah", "--reciter", "--style", "-f", "--find",
@@ -49,6 +49,7 @@ VALUE_OPTS = frozenset({
 OPTIONAL_VALUE_OPTS = frozenset({
     "-r", "--random", "--check",
     "-d", "--download", "--download-voice", "--install",
+    "--salawat",
 })
 
 ReciterSpec = tuple["Reciter", "str | None"]
@@ -70,6 +71,14 @@ def _usage_error(msg: str) -> None:
     raise SystemExit(EXIT_USAGE)
 
 
+def _is_minutes(tok: str) -> bool:
+    try:
+        salawat.parse_minutes(tok)
+        return True
+    except salawat.SalawatError:
+        return False
+
+
 def prescan(argv: list[str]) -> tuple[list[str], list[str]]:
     """Split argv into (tokens argparse may see, bare -selector tokens)."""
     options: list[str] = []
@@ -89,6 +98,8 @@ def prescan(argv: list[str]) -> tuple[list[str], list[str]]:
         if tok in OPTIONAL_VALUE_OPTS:
             options.append(tok)
             nxt = argv[i + 1] if i + 1 < len(argv) else None
+            if tok == "--salawat" and nxt is not None and not _is_minutes(nxt):
+                nxt = None   # "--salawat kahf": kahf is a surah, not minutes
             if nxt is not None and not nxt.startswith("-"):
                 options.append(nxt)
                 i += 2
@@ -160,6 +171,9 @@ def build_epilog(pm: ui.Palette) -> str:
         f"{PROG} -baqara -sud -d       save Surah Al-Baqara offline in Sudais's voice",
         f"{PROG} --offline             play only from offline storage (no network)",
         f"{PROG} --offline-list        list all voices installed offline",
+        f"{PROG} -kahf --salawat       salawat on the Prophet every 10 minutes",
+        f"{PROG} -kahf --salawat 5     ... or every 5 minutes",
+        f"{PROG} --set salawat=10      always remind, every 10 minutes",
         f"{PROG} -R                    list every voice with its codes",
         f"{PROG} -s                    list all 114 surahs with their codes",
         f"{PROG} --check               verify which voices are reachable",
@@ -219,6 +233,15 @@ def build_parser(pm: ui.Palette) -> argparse.ArgumentParser:
     off.add_argument("--remove-voice", metavar="VOICE",
                      help="remove an offline installed voice")
 
+    rem = ap.add_argument_group("salawat reminder")
+    rem.add_argument("--salawat", nargs="?", const=str(salawat.DEFAULT_MINUTES),
+                     metavar="MIN",
+                     help="pause every MIN minutes (default 10) for salawat "
+                          "on the Prophet, then resume")
+    rem.add_argument("--no-salawat", action="store_true",
+                     help="turn the reminder off for this run, even if saved "
+                          "with --set salawat=N")
+
     out = ap.add_argument_group("output")
     out.add_argument("--url", action="store_true",
                      help="print the resolved URL(s) and exit")
@@ -235,7 +258,8 @@ def build_parser(pm: ui.Palette) -> argparse.ArgumentParser:
 
     misc = ap.add_argument_group("configuration")
     misc.add_argument("--set", metavar="KEY=VALUE",
-                      help="save a setting: reciter, style, player")
+                      help="save a setting: reciter, style, player, storage, "
+                           "salawat (minutes or off), salawat_file")
     misc.add_argument("--config", action="store_true",
                       help="show the saved configuration and exit")
     return ap
@@ -591,7 +615,40 @@ def do_play(pm: ui.Palette, planned: list, args) -> int:
     except player_mod.PlayerError as exc:
         return die(pm, str(exc), EXIT_FAIL)
     print(pm(f"player: {spec.name} ({spec.binary})", "brand"))
+    reminder = start_salawat(pm, spec, args)
     print()
+    try:
+        return _play_tracks(pm, planned, args, spec, reminder)
+    finally:
+        if reminder is not None:
+            reminder.stop()
+
+
+def start_salawat(pm: ui.Palette, spec, args):
+    """Start the salawat reminder if asked for, or None.
+
+    A missing clip never blocks playback: the recitation still plays and
+    the reason is shown once.
+    """
+    try:
+        if args.no_salawat:
+            return None
+        if args.salawat is not None:
+            minutes = salawat.parse_minutes(args.salawat)
+        else:
+            minutes = salawat.configured_minutes()
+        if minutes is None:
+            return None
+        clip = salawat.clip_path(timeout=min(args.timeout, 20.0))
+    except salawat.SalawatError as exc:
+        print(pm(f"salawat reminder off: {exc}", "yellow"))
+        return None
+    every = f"{minutes:g} minute" + ("" if minutes == 1 else "s")
+    print(pm(f"salawat: ﷺ every {every}", "brand"))
+    return salawat.Reminder(spec, clip, minutes).start()
+
+
+def _play_tracks(pm: ui.Palette, planned: list, args, spec, reminder) -> int:
     failures = 0
     for i, track in enumerate(planned):
         if i:
@@ -600,6 +657,8 @@ def do_play(pm: ui.Palette, planned: list, args) -> int:
         if not args.no_banner:
             describe_track(pm, track)
         print()
+        if reminder is not None:
+            reminder.wait_idle()   # never start a surah over the clip
         viz = ui.Visualizer(f"{track.surah.name_en} · {track.reciter.name_en}")
         try:
             if track.is_offline:
@@ -615,6 +674,8 @@ def do_play(pm: ui.Palette, planned: list, args) -> int:
 
             with player_mod.Session(spec, on_total=viz.start,
                                      on_chunk=viz.advance) as s:
+                if reminder is not None:
+                    reminder.attach(s, viz)
                 s.play(play_source, timeout=args.timeout)
             print(pm("  done.", "brand"))
         except KeyboardInterrupt:

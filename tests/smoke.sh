@@ -280,6 +280,19 @@ expect_eq "cleared setting falls back to default" "https://cdn.mp3quran.net/audi
           "$(XDG_CONFIG_HOME="$cfgdir" "$RADDU" -baqara --url 2>/dev/null)"
 rm -rf "$cfgdir"
 
+head_ "salawat settings"
+expect_rc "--set salawat rejects a non-number" 2 "$RADDU" --set salawat=soon
+expect_contains "--set salawat=7 is saved" "every 7" "$RADDU" --set salawat=7
+expect_contains "--set salawat=off clears it" "off" "$RADDU" --set salawat=off
+expect_rc "--set salawat_file needs a real file" 2 "$RADDU" --set salawat_file=/no/such.mp3
+expect_eq "--salawat does not swallow a surah" \
+          "https://cdn.mp3quran.net/audio/mishary-alafasy/r1/018.mp3" \
+          "$("$RADDU" --salawat kahf --url 2>/dev/null)"
+expect_eq "--salawat takes minutes before a surah" \
+          "https://cdn.mp3quran.net/audio/mishary-alafasy/r1/018.mp3" \
+          "$("$RADDU" --salawat 5 kahf --url 2>/dev/null)"
+expect_contains "help documents --salawat" "--salawat" "$RADDU" -h
+
 head_ "offline voices"
 expect_contains "help mentions -d"            "-d"       "$RADDU" -h
 expect_contains "help mentions --offline"     "offline"  "$RADDU" -h
