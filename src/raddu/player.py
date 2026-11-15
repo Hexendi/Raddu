@@ -186,9 +186,7 @@ class Session:
                 raise PlayerError(f"{self.spec.binary} exited with status {rc}.")
             return written
 
-        argv = [self.spec.binary, *[a.format(file=str(path)) for a in self.spec.args]]
-        self.proc = subprocess.run(argv, stdout=subprocess.DEVNULL,
-                                   stderr=subprocess.DEVNULL)
+        self._run_file(path)
         return total
 
     def _play_remote(self, url: str, *, timeout: float = 30.0) -> int:
@@ -224,10 +222,24 @@ class Session:
                 url, fh, timeout=timeout,
                 on_total=self._on_total, on_chunk=self._on_chunk,
             )
-        argv = [self.spec.binary, *[a.format(file=str(dest)) for a in self.spec.args]]
-        self.proc = subprocess.run(argv, stdout=subprocess.DEVNULL,
-                                   stderr=subprocess.DEVNULL)
+        self._run_file(dest)
         return written
+
+    def _run_file(self, path: pathlib.Path) -> None:
+        """Play ``path`` with a player that needs a real file.
+
+        Kept as a live Popen in ``self.proc`` while it runs, so stop() can
+        terminate it; ``subprocess.run`` would leave a CompletedProcess
+        there, which has no ``poll()`` and crashed stop() at the end of
+        every track.
+        """
+        argv = [self.spec.binary, *[a.format(file=str(path)) for a in self.spec.args]]
+        self.proc = subprocess.Popen(argv, stdout=subprocess.DEVNULL,
+                                     stderr=subprocess.DEVNULL)
+        rc = self.proc.wait()
+        self.proc = None
+        if rc not in (0, None):
+            raise PlayerError(f"{self.spec.binary} exited with status {rc}.")
 
     def stop(self) -> None:
         self._drop_stdin()

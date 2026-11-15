@@ -115,6 +115,19 @@ sys.exit(0)
 PY
 then ok "_drop_stdin is re-entrancy safe"; else bad "_drop_stdin is re-entrancy safe" "clean exit" "raised"; fi
 
+if PYTHONPATH="$ROOT/src" python3 - <<'PY'
+import pathlib, sys, tempfile
+from raddu.player import PlayerSpec, Session
+# afplay/paplay-style players get a file path instead of a pipe; closing
+# the session after such a track used to raise AttributeError.
+f = pathlib.Path(tempfile.mkdtemp()) / "a.mp3"
+f.write_bytes(b"x" * 100)
+with Session(PlayerSpec("true", "true", ("{file}",), stdin_ok=False)) as s:
+    s.play(f)
+sys.exit(0)
+PY
+then ok "file-based players close cleanly"; else bad "file-based players close cleanly" "clean exit" "raised"; fi
+
 head_ "visualizer"
 if PYTHONPATH="$ROOT/src" python3 - <<'PY'
 import sys
