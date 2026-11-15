@@ -149,6 +149,24 @@ RECITERS: dict[str, dict] = {
         "name_ar": "محمد خليل القارئ",
         "codes": ["kha", "khalil", "alqari", "al-qari", "mohammad-khalil"],
     },
+    # Islam Sobhi's recording is incomplete upstream (109/114); the missing
+    # surahs are recorded per style like haz above.
+    "isl": {
+        "reciter_id": 253,
+        "default": 253,
+        "styles": {253: "hafs"},
+        "name_en": "Islam Sobhi",
+        "name_ar": "إسلام صبحي",
+        "codes": ["isl", "islam", "sobhi", "subhi", "islam-sobhi", "islamsobhi"],
+    },
+    "kml": {
+        "reciter_id": 267,
+        "default": 267,
+        "styles": {267: "hafs"},
+        "name_en": "Abdullah Kamel",
+        "name_ar": "عبدالله كامل",
+        "codes": ["kml", "kamel", "kamil", "abdullah-kamel", "abdullahkamel"],
+    },
 }
 
 # ---------------------------------------------------------------------------

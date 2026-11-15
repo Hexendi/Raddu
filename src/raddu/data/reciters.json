@@ -607,6 +607,67 @@
   "source": "mp3quran.net"
  },
  {
+  "code": "isl",
+  "name_ar": "إسلام صبحي",
+  "name_en": "Islam Sobhi",
+  "default_style": "hafs",
+  "default_label_en": "Hafs an Asim",
+  "codes": [
+   "isl",
+   "islam",
+   "islam-sobhi",
+   "islamsobhi",
+   "sobhi",
+   "subhi"
+  ],
+  "styles": [
+   {
+    "code": "hafs",
+    "moshaf_id": 253,
+    "server": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/",
+    "label_ar": "حفص عن عاصم",
+    "label_en": "Hafs an Asim",
+    "surah_count": 109,
+    "missing": [
+     37,
+     39,
+     40,
+     45,
+     65
+    ]
+   }
+  ],
+  "nationality": null,
+  "source": "mp3quran.net"
+ },
+ {
+  "code": "kml",
+  "name_ar": "عبدالله كامل",
+  "name_en": "Abdullah Kamel",
+  "default_style": "hafs",
+  "default_label_en": "Hafs an Asim",
+  "codes": [
+   "abdullah-kamel",
+   "abdullahkamel",
+   "kamel",
+   "kamil",
+   "kml"
+  ],
+  "styles": [
+   {
+    "code": "hafs",
+    "moshaf_id": 267,
+    "server": "https://cdn.mp3quran.net/audio/abdullah-kamel/r1/",
+    "label_ar": "حفص عن عاصم",
+    "label_en": "Hafs an Asim",
+    "surah_count": 114,
+    "missing": []
+   }
+  ],
+  "nationality": null,
+  "source": "mp3quran.net"
+ },
+ {
   "code": "bilal",
   "name_ar": "الناجي ولد بلال",
   "name_en": "Al-Nagy Ould Bilal",
