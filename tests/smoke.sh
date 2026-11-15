@@ -128,46 +128,22 @@ sys.exit(0)
 PY
 then ok "file-based players close cleanly"; else bad "file-based players close cleanly" "clean exit" "raised"; fi
 
-head_ "salawat reminder"
-if [[ -d /proc/self ]]; then
+head_ "salawat & adhan timers"
 if PYTHONPATH="$ROOT/src" python3 - <<'PY'
-import pathlib, subprocess, sys, tempfile, time
+import pathlib, sys, tempfile, time
 from raddu import salawat
 from raddu.player import PlayerSpec
-
-def state(pid):
-    return pathlib.Path(f"/proc/{pid}/stat").read_text().split(")")[1].split()[0]
-
 clip = pathlib.Path(tempfile.mkdtemp()) / "clip.mp3"
 clip.write_bytes(b"x" * 1000)
-# the "clip player" swallows the clip, then lasts long enough to observe
-spec = PlayerSpec("fake", "sh", ("-c", "cat >/dev/null; sleep 0.6"))
-recitation = subprocess.Popen(["sleep", "30"])
-
-class S: proc = recitation
-class V: title = "Al-Kahf"
-v = V()
-r = salawat.Reminder(spec, clip, minutes=0.3 / 60)   # every 0.3 s
-r.attach(S(), v)
-r.start()
-seen_paused = seen_label = False
-deadline = time.time() + 3
-while time.time() < deadline and r.played < 1:
-    if state(recitation.pid) == "T":
-        seen_paused = True
-    if v.title == salawat.LABEL:
-        seen_label = True
-    time.sleep(0.02)
-r.stop()
-time.sleep(0.05)
-assert r.played >= 1, "clip never played"
-assert seen_paused, "recitation was not paused during the clip"
-assert seen_label, "visualizer was not relabelled"
-assert state(recitation.pid) != "T", "recitation was left paused"
-assert v.title == "Al-Kahf", "title not restored"
-recitation.kill()
-
-for good, want in (("10", 10.0), ("2.5", 2.5), ("15m", 15.0), ("off", None), (None, None)):
+spec = PlayerSpec("fake", "sh", ("-c", "cat >/dev/null"))
+seen = []
+r = salawat.Reminder(spec, clip, minutes=0.3 / 60,          # every 0.3 s
+                     on_event=lambda label, on: on and seen.append(label))
+r.start(); time.sleep(1.1); r.stop()
+assert r.played >= 2, f"played {r.played} times"
+assert seen and seen[0] == salawat.LABEL, seen
+for good, want in (("10", 10.0), ("2.5", 2.5), ("15m", 15.0), ("15min", 15.0),
+                   ("off", None), (None, None)):
     assert salawat.parse_minutes(good) == want, good
 for badv in ("-1", "0.0", "soon"):
     try: salawat.parse_minutes(badv)
@@ -175,10 +151,65 @@ for badv in ("-1", "0.0", "soon"):
     else: raise AssertionError(badv)
 sys.exit(0)
 PY
-then ok "salawat pauses the recitation, plays the clip, resumes"; else bad "salawat pauses the recitation, plays the clip, resumes" "clean exit" "raised"; fi
-else
-  printf '  %sSKIP%s salawat pause test (needs /proc)\n' "$c_d" "$c_0"
-fi
+then ok "salawat plays its clip on every interval"; else bad "salawat plays its clip on every interval" "clean exit" "raised"; fi
+
+if PYTHONPATH="$ROOT/src" python3 - <<'PY'
+import datetime as dt, pathlib, sys, tempfile, time
+from raddu import adhan, prayer
+from raddu.player import PlayerSpec
+
+clip = pathlib.Path(tempfile.mkdtemp()) / "adhan.mp3"
+clip.write_bytes(b"x" * 1000)
+spec = PlayerSpec("fake", "sh", ("-c", "cat >/dev/null"))
+loc = prayer.Location("Nouakchott", 18.0858, -15.9785, "mwl", "standard")
+
+# a clock running 1.5 s before the next prayer
+real = dt.datetime.now().astimezone()
+name, at = prayer.upcoming(loc, real)
+shift = at - real - dt.timedelta(seconds=1.5)
+clock = lambda: dt.datetime.now().astimezone() + shift
+events = []
+w = adhan.Watch(spec, clip, loc, lambda label, on: on and events.append(label), clock=clock)
+w.start()
+time.sleep(3.5)
+w.stop()
+assert w.played == 1, f"expected one adhan, got {w.played}"
+assert prayer.NAMES[name][0] in events[0] and "الله أكبر" in events[0], events
+nxt, nat = w.next_prayer()
+assert nat > at, "did not move on to the next prayer"
+
+# a computer waking up 10 minutes after a prayer does not call it late
+shift2 = at - real + dt.timedelta(minutes=10)
+w2 = adhan.Watch(spec, clip, loc, clock=lambda: dt.datetime.now().astimezone() + shift2)
+w2.last = at - dt.timedelta(seconds=1)
+w2.start(); time.sleep(0.5); w2.stop()
+assert w2.played == 0, "a long-missed prayer was called late"
+
+# five prayers a day, in order, all on the right day in Nouakchott
+t = loc.times(dt.date(2026, 11, 15))
+seq = [t[n] for n in ("fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha")]
+assert seq == sorted(seq), seq
+# matches the published timetable (aladhan.com, MWL) to the minute
+utc = [x.astimezone(dt.timezone.utc).strftime("%H:%M") for x in seq]
+assert utc == ["05:54", "07:10", "12:49", "16:03", "18:27", "19:38"], utc
+sys.exit(0)
+PY
+then ok "adhan is called once at prayer time, never late"; else bad "adhan is called once at prayer time, never late" "clean exit" "raised"; fi
+
+if PYTHONPATH="$ROOT/src" python3 - <<'PY'
+import datetime as dt, sys
+from raddu import prayer
+# summer at a high latitude: twilight never ends, Fajr/Isha still exist
+t = prayer.times_for(dt.date(2026, 6, 21), 59.33, 18.07, "mwl")
+order = [t[n] for n in ("fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha")]
+assert order == sorted(order), order
+# the Hanafi Asr is later than the standard one
+std = prayer.times_for(dt.date(2026, 11, 15), 18.0858, -15.9785, "mwl", "standard")
+han = prayer.times_for(dt.date(2026, 11, 15), 18.0858, -15.9785, "mwl", "hanafi")
+assert han["asr"] > std["asr"]
+sys.exit(0)
+PY
+then ok "prayer times hold at high latitude and for the Hanafi Asr"; else bad "prayer times hold at high latitude and for the Hanafi Asr" "clean exit" "raised"; fi
 
 head_ "visualizer"
 if PYTHONPATH="$ROOT/src" python3 - <<'PY'
@@ -280,18 +311,29 @@ expect_eq "cleared setting falls back to default" "https://cdn.mp3quran.net/audi
           "$(XDG_CONFIG_HOME="$cfgdir" "$RADDU" -baqara --url 2>/dev/null)"
 rm -rf "$cfgdir"
 
-head_ "salawat settings"
+head_ "adhan & salawat options"
 expect_rc "--set salawat rejects a non-number" 2 "$RADDU" --set salawat=soon
 expect_contains "--set salawat=7 is saved" "every 7" "$RADDU" --set salawat=7
-expect_contains "--set salawat=off clears it" "off" "$RADDU" --set salawat=off
+expect_contains "--set salawat=off clears it" "cleared" "$RADDU" --set salawat=off
 expect_rc "--set salawat_file needs a real file" 2 "$RADDU" --set salawat_file=/no/such.mp3
-expect_eq "--salawat does not swallow a surah" \
-          "https://cdn.mp3quran.net/audio/mishary-alafasy/r1/018.mp3" \
-          "$("$RADDU" --salawat kahf --url 2>/dev/null)"
-expect_eq "--salawat takes minutes before a surah" \
-          "https://cdn.mp3quran.net/audio/mishary-alafasy/r1/018.mp3" \
-          "$("$RADDU" --salawat 5 kahf --url 2>/dev/null)"
-expect_contains "help documents --salawat" "--salawat" "$RADDU" -h
+expect_rc "--set adhan_file needs a real file"   2 "$RADDU" --set adhan_file=/no/such.mp3
+expect_contains "--times defaults to Nouakchott" "Nouakchott" "$RADDU" --times
+expect_contains "--times shows the five prayers" "Maghrib" "$RADDU" --times
+expect_contains "--times takes a place" "Makkah" "$RADDU" --times makkah
+expect_contains "--cities lists Mauritanian places" "Nouadhibou" "$RADDU" --cities
+expect_contains "--set location takes a city" "Atar" "$RADDU" --set location=atar
+expect_contains "the saved city is used" "Atar" "$RADDU" --times
+expect_contains "--set location takes lat,lon" "18.0858" "$RADDU" --set location=18.0858,-15.9785
+expect_rc "--set location rejects an unknown place" 2 "$RADDU" --set location=atlantis
+expect_rc "--set method rejects an unknown method" 2 "$RADDU" --set method=bogus
+expect_contains "--set asr accepts maliki" "standard" "$RADDU" --set asr=maliki
+"$RADDU" --set location=clear >/dev/null 2>&1
+expect_rc "--adhan refuses to mix with a recitation" 2 "$RADDU" --adhan -kahf
+expect_rc "--salawat refuses to mix with a recitation" 2 "$RADDU" --salawat 5 -sud
+expect_rc "-b alone is a usage error" 2 "$RADDU" -b
+expect_contains "--status reports nothing running" "not running" "$RADDU" --status
+expect_contains "--stop with nothing running" "nothing" "$RADDU" --stop
+expect_contains "help documents --adhan" "--adhan" "$RADDU" -h
 
 head_ "offline voices"
 expect_contains "help mentions -d"            "-d"       "$RADDU" -h

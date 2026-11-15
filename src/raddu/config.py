@@ -95,22 +95,44 @@ def set_value(key: str, value: str) -> str:
         if minutes is None:
             data.pop("salawat", None)
             save(data)
-            return "salawat reminder off"
+            return "salawat interval cleared - 'raddu --salawat' uses 10 minutes"
         data["salawat"] = f"{minutes:g}"
         save(data)
-        return f"salawat = every {minutes:g} minute(s)"
-    if key == "salawat_file":
+        return f"salawat = every {minutes:g} minute(s) when you run 'raddu --salawat'"
+    if key in ("salawat_file", "adhan_file"):
+        builtin = {"salawat_file": "al-Ahzab 33:56, al-Afasy",
+                   "adhan_file": "adhan of Sabah Fakhri"}[key]
         data = load()
         if value.lower() in ("clear", "none", "reset", "default", ""):
-            data.pop("salawat_file", None)
+            data.pop(key, None)
             save(data)
-            return "salawat_file cleared - using the built-in clip (al-Ahzab 33:56)"
+            return f"{key} cleared - using the built-in clip ({builtin})"
         p = pathlib.Path(value).expanduser().resolve()
         if not p.is_file():
-            raise CatalogError(f"salawat_file: no such file {str(p)!r}")
-        data["salawat_file"] = str(p)
+            raise CatalogError(f"{key}: no such file {str(p)!r}")
+        data[key] = str(p)
         save(data)
-        return f"salawat_file = {p}"
+        return f"{key} = {p}"
+    if key in ("location", "method", "asr"):
+        from . import prayer
+        data = load()
+        if value.lower() in ("clear", "none", "reset", "default", ""):
+            data.pop(key, None)
+            save(data)
+            return f"{key} reset to default ({prayer.location().name if key == 'location' else 'auto' if key == 'method' else 'standard'})"
+        try:
+            if key == "location":
+                label, *_ = prayer.parse_place(value)
+                stored = value.strip()
+            elif key == "method":
+                stored = label = prayer.parse_method(value)
+            else:
+                stored = label = prayer.parse_asr(value)
+        except prayer.PrayerError as exc:
+            raise CatalogError(str(exc)) from None
+        data[key] = stored
+        save(data)
+        return f"{key} = {label}"
     if key in ("storage", "offline_dir"):
         if value.lower() in ("clear", "none", "reset", "default"):
             data = load()

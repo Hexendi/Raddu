@@ -7,10 +7,14 @@ import difflib
 import json
 import pathlib
 import random
+import datetime as dt
 import signal
 import sys
+import threading
+import time
 
-from . import __version__, config, net, player as player_mod, salawat, storage, ui
+from . import (__version__, adhan, config, net, player as player_mod, prayer,
+               salawat, service, storage, ui)
 from .catalog import CatalogError, catalog, Reciter, Surah, Track
 
 PROG = "raddu"
@@ -40,7 +44,8 @@ FLAGS = frozenset({
     "-h", "--help", "-V", "--version",
     "-s", "--list-surahs", "-R", "--list-reciters",
     "--list-players", "--url", "--json", "--no-banner", "--config",
-    "--offline", "--offline-list", "--no-salawat",
+    "--offline", "--offline-list",
+    "--adhan", "--cities", "-b", "--background", "--stop", "--status",
 })
 VALUE_OPTS = frozenset({
     "-n", "--count", "--surah", "--reciter", "--style", "-f", "--find",
@@ -49,7 +54,7 @@ VALUE_OPTS = frozenset({
 OPTIONAL_VALUE_OPTS = frozenset({
     "-r", "--random", "--check",
     "-d", "--download", "--download-voice", "--install",
-    "--salawat",
+    "--salawat", "--times", "--autostart",
 })
 
 ReciterSpec = tuple["Reciter", "str | None"]
@@ -99,7 +104,9 @@ def prescan(argv: list[str]) -> tuple[list[str], list[str]]:
             options.append(tok)
             nxt = argv[i + 1] if i + 1 < len(argv) else None
             if tok == "--salawat" and nxt is not None and not _is_minutes(nxt):
-                nxt = None   # "--salawat kahf": kahf is a surah, not minutes
+                nxt = None   # "--salawat -b": only a number is the interval
+            if tok == "--autostart" and nxt not in ("on", "off"):
+                nxt = None
             if nxt is not None and not nxt.startswith("-"):
                 options.append(nxt)
                 i += 2
@@ -171,9 +178,12 @@ def build_epilog(pm: ui.Palette) -> str:
         f"{PROG} -baqara -sud -d       save Surah Al-Baqara offline in Sudais's voice",
         f"{PROG} --offline             play only from offline storage (no network)",
         f"{PROG} --offline-list        list all voices installed offline",
-        f"{PROG} -kahf --salawat       salawat on the Prophet every 10 minutes",
-        f"{PROG} -kahf --salawat 5     ... or every 5 minutes",
-        f"{PROG} --set salawat=10      always remind, every 10 minutes",
+        f"{PROG} --adhan               call the adhan at every prayer time",
+        f"{PROG} --salawat 10          salawat on the Prophet every 10 minutes",
+        f"{PROG} --adhan --salawat -b  both, in the background",
+        f"{PROG} --adhan --autostart   start the adhan by itself at every login",
+        f"{PROG} --times               today's prayer times (Nouakchott by default)",
+        f"{PROG} --set location=atar   change the city; see --cities",
         f"{PROG} -R                    list every voice with its codes",
         f"{PROG} -s                    list all 114 surahs with their codes",
         f"{PROG} --check               verify which voices are reachable",
@@ -233,14 +243,26 @@ def build_parser(pm: ui.Palette) -> argparse.ArgumentParser:
     off.add_argument("--remove-voice", metavar="VOICE",
                      help="remove an offline installed voice")
 
-    rem = ap.add_argument_group("salawat reminder")
-    rem.add_argument("--salawat", nargs="?", const=str(salawat.DEFAULT_MINUTES),
-                     metavar="MIN",
-                     help="pause every MIN minutes (default 10) for salawat "
-                          "on the Prophet, then resume")
-    rem.add_argument("--no-salawat", action="store_true",
-                     help="turn the reminder off for this run, even if saved "
-                          "with --set salawat=N")
+    rem = ap.add_argument_group(
+        "adhan & salawat (stand-alone, separate from the reciters)")
+    rem.add_argument("--adhan", action="store_true",
+                     help="wait and call the adhan at each prayer time")
+    rem.add_argument("--salawat", nargs="?", const="", metavar="MIN",
+                     help="salawat on the Prophet every MIN minutes "
+                          "(default 10, or the saved salawat setting)")
+    rem.add_argument("-b", "--background", action="store_true",
+                     help="run --adhan / --salawat in the background")
+    rem.add_argument("--autostart", nargs="?", const="on", metavar="off",
+                     help="start --adhan / --salawat by itself at every login "
+                          "(systemd); '--autostart off' removes it")
+    rem.add_argument("--status", action="store_true",
+                     help="show what runs in the background and the next prayer")
+    rem.add_argument("--stop", action="store_true",
+                     help="stop the background watcher")
+    rem.add_argument("--times", nargs="?", const="", metavar="PLACE",
+                     help="show today's prayer times (saved location by default)")
+    rem.add_argument("--cities", action="store_true",
+                     help="list the built-in places for --set location")
 
     out = ap.add_argument_group("output")
     out.add_argument("--url", action="store_true",
@@ -259,7 +281,8 @@ def build_parser(pm: ui.Palette) -> argparse.ArgumentParser:
     misc = ap.add_argument_group("configuration")
     misc.add_argument("--set", metavar="KEY=VALUE",
                       help="save a setting: reciter, style, player, storage, "
-                           "salawat (minutes or off), salawat_file")
+                           "location, method, asr, salawat, salawat_file, "
+                           "adhan_file")
     misc.add_argument("--config", action="store_true",
                       help="show the saved configuration and exit")
     return ap
@@ -615,40 +638,7 @@ def do_play(pm: ui.Palette, planned: list, args) -> int:
     except player_mod.PlayerError as exc:
         return die(pm, str(exc), EXIT_FAIL)
     print(pm(f"player: {spec.name} ({spec.binary})", "brand"))
-    reminder = start_salawat(pm, spec, args)
     print()
-    try:
-        return _play_tracks(pm, planned, args, spec, reminder)
-    finally:
-        if reminder is not None:
-            reminder.stop()
-
-
-def start_salawat(pm: ui.Palette, spec, args):
-    """Start the salawat reminder if asked for, or None.
-
-    A missing clip never blocks playback: the recitation still plays and
-    the reason is shown once.
-    """
-    try:
-        if args.no_salawat:
-            return None
-        if args.salawat is not None:
-            minutes = salawat.parse_minutes(args.salawat)
-        else:
-            minutes = salawat.configured_minutes()
-        if minutes is None:
-            return None
-        clip = salawat.clip_path(timeout=min(args.timeout, 20.0))
-    except salawat.SalawatError as exc:
-        print(pm(f"salawat reminder off: {exc}", "yellow"))
-        return None
-    every = f"{minutes:g} minute" + ("" if minutes == 1 else "s")
-    print(pm(f"salawat: ﷺ every {every}", "brand"))
-    return salawat.Reminder(spec, clip, minutes).start()
-
-
-def _play_tracks(pm: ui.Palette, planned: list, args, spec, reminder) -> int:
     failures = 0
     for i, track in enumerate(planned):
         if i:
@@ -657,8 +647,6 @@ def _play_tracks(pm: ui.Palette, planned: list, args, spec, reminder) -> int:
         if not args.no_banner:
             describe_track(pm, track)
         print()
-        if reminder is not None:
-            reminder.wait_idle()   # never start a surah over the clip
         viz = ui.Visualizer(f"{track.surah.name_en} · {track.reciter.name_en}")
         try:
             if track.is_offline:
@@ -674,8 +662,6 @@ def _play_tracks(pm: ui.Palette, planned: list, args, spec, reminder) -> int:
 
             with player_mod.Session(spec, on_total=viz.start,
                                      on_chunk=viz.advance) as s:
-                if reminder is not None:
-                    reminder.attach(s, viz)
                 s.play(play_source, timeout=args.timeout)
             print(pm("  done.", "brand"))
         except KeyboardInterrupt:
@@ -694,6 +680,254 @@ def _play_tracks(pm: ui.Palette, planned: list, args, spec, reminder) -> int:
         finally:
             viz.stop()
     return EXIT_FAIL if failures else EXIT_OK
+
+
+# ---------------------------------------------------------------------------
+# adhan & salawat (stand-alone modes)
+# ---------------------------------------------------------------------------
+def _hm(moment: dt.datetime) -> str:
+    return moment.strftime("%H:%M")
+
+
+def _span(seconds: float) -> str:
+    seconds = max(0, int(seconds))
+    h, rem = divmod(seconds, 3600)
+    m, s = divmod(rem, 60)
+    return f"{h}h {m:02d}m" if h else (f"{m}m {s:02d}s" if m else f"{s}s")
+
+
+def _location(place: str | None) -> prayer.Location:
+    if not place:
+        return prayer.location()
+    name, lat, lon, method = prayer.parse_place(place)
+    saved = prayer.location()
+    return prayer.Location(name, lat, lon,
+                           config.load().get("method") and saved.method or method,
+                           saved.asr)
+
+
+def show_times(pm: ui.Palette, place: str | None) -> int:
+    try:
+        loc = _location(place)
+    except prayer.PrayerError as exc:
+        return die(pm, str(exc))
+    now = dt.datetime.now().astimezone()
+    times = loc.times(now.date())
+    nxt_name, nxt_at = prayer.upcoming(loc, now)
+    method = prayer.METHODS[loc.method].name
+    print(pm(f"PRAYER TIMES · {loc.name} · {now:%A %d %B %Y}", "bold"))
+    rows = []
+    for name in ("fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"):
+        en, ar = prayer.NAMES[name]
+        mark = pm("◀ next", "green") if (name == nxt_name and times[name] == nxt_at) else ""
+        rows.append([en, ar, _hm(times[name]), mark])
+    ui.table(pm, ["prayer", "الصلاة", "time", ""], rows, aligns=["l", "l", "r", "l"])
+    if nxt_at.date() != now.date():
+        en, ar = prayer.NAMES[nxt_name]
+        print(pm(f"  next: {en} {ar} tomorrow at {_hm(nxt_at)}", "green"))
+    print(pm(f"  {method}, Asr {loc.asr} · times in this computer's time zone "
+             f"({now:%Z})", "brand"))
+    print(pm(f"  change the place with:  {PROG} --set location=<city>   "
+             f"(see {PROG} --cities)", "brand"))
+    return EXIT_OK
+
+
+def show_cities(pm: ui.Palette) -> None:
+    current = prayer.location().name
+    rows = [[p.code, p.name, p.name_ar, NATIONALITY.get(p.country, p.country),
+             f"{p.lat:.4f},{p.lon:.4f}", p.method,
+             pm("✓", "green") if p.name == current else ""]
+            for p in prayer.PLACES.values()]
+    ui.table(pm, ["code", "place", "بالاسم", "country", "lat,lon", "method", ""],
+             rows, aligns=["l", "l", "l", "l", "l", "l", "l"])
+    print()
+    print("  " + pm(f"set your place:   {PROG} --set location=nouadhibou", "brand"))
+    print("  " + pm(f"anywhere else:    {PROG} --set location=18.0858,-15.9785", "brand"))
+    print("  " + pm(f"other method:     {PROG} --set method=makkah   "
+                    f"({', '.join(prayer.METHODS)})", "brand"))
+
+
+def _watch_args(args) -> list[str] | str:
+    """Canonical argv for the watcher, or an error message."""
+    out: list[str] = []
+    if args.adhan:
+        out.append("--adhan")
+    if args.salawat is not None:
+        try:
+            minutes = salawat.parse_minutes(args.salawat) if args.salawat \
+                else salawat.default_minutes()
+        except salawat.SalawatError as exc:
+            return str(exc)
+        if minutes is None:
+            return "salawat interval is 'off'; give a number of minutes"
+        out += ["--salawat", f"{minutes:g}"]
+    if args.player:
+        out += ["--player", args.player]
+    return out
+
+
+def show_status(pm: ui.Palette) -> int:
+    bg = service.running()
+    if bg:
+        print(pm(f"background: running (pid {bg[0]}): {PROG} {bg[1]}", "green"))
+        print(f"  log: {service.log_path()}")
+    else:
+        print(pm("background: not running", "brand"))
+    state = service.autostart_state()
+    if state:
+        print(pm(f"autostart:  {state}: {PROG} {service.autostart_command() or ''}",
+                 "green" if state == "active" else "yellow"))
+    else:
+        print(pm("autostart:  off", "brand"))
+    loc = prayer.location()
+    name, at = prayer.upcoming(loc, dt.datetime.now().astimezone())
+    en, ar = prayer.NAMES[name]
+    print(f"  next prayer in {loc.name}: {en} {ar} at {_hm(at)} "
+          f"(in {_span((at - dt.datetime.now().astimezone()).total_seconds())})")
+    return EXIT_OK
+
+
+def run_watch(pm: ui.Palette, args) -> int:
+    """Foreground loop for --adhan and/or --salawat, until Ctrl-C or SIGTERM."""
+    try:
+        spec = player_mod.detect(args.player or config.load().get("player") or None)
+    except player_mod.PlayerError as exc:
+        return die(pm, str(exc), EXIT_FAIL)
+    tty = sys.stdout.isatty()
+    out_lock = threading.Lock()
+    status = {"line": ""}
+
+    def say(text: str, *styles: str) -> None:
+        with out_lock:
+            stamp = dt.datetime.now().strftime("%H:%M" if tty else "%Y-%m-%d %H:%M")
+            clear = "\r\033[K" if tty else ""
+            print(f"{clear}  {pm(stamp, 'brand')}  {pm(text, *styles)}", flush=True)
+
+    def on_event(label: str, playing: bool) -> None:
+        if playing:
+            say(f"▶ {label}", "green")
+
+    timers = []
+    try:
+        if args.adhan:
+            clip = adhan.clip_path(timeout=min(args.timeout, 30.0))
+            timers.append(adhan.Watch(spec, clip, None, on_event))
+        if args.salawat is not None:
+            minutes = (salawat.parse_minutes(args.salawat) if args.salawat
+                       else salawat.default_minutes())
+            if minutes is None:
+                return die(pm, "salawat interval is 'off'; give a number of minutes")
+            clip = salawat.clip_path(timeout=min(args.timeout, 30.0))
+            timers.append(salawat.Reminder(spec, clip, minutes, on_event))
+    except (adhan.AdhanError, salawat.SalawatError) as exc:
+        return die(pm, str(exc), EXIT_FAIL)
+
+    print(pm(f"player: {spec.name} ({spec.binary})", "brand"), flush=True)
+    for t in timers:
+        if isinstance(t, adhan.Watch):
+            loc = prayer.location()
+            times = loc.times(dt.date.today())
+            day = "  ".join(f"{prayer.NAMES[n][0]} {_hm(times[n])}" for n in prayer.PRAYERS)
+            print(pm(f"adhan:   {loc.name} · {day}", "brand"), flush=True)
+        else:
+            print(pm(f"salawat: ﷺ every {t.interval / 60:g} minute(s)", "brand"),
+                  flush=True)
+    print(pm("waiting - Ctrl-C to stop" if tty else "waiting", "brand"), flush=True)
+    for t in timers:
+        t.start()
+
+    try:
+        while True:
+            if tty:
+                parts = []
+                for t in timers:
+                    if isinstance(t, adhan.Watch):
+                        name, at = t.next_prayer()
+                        left = (at - dt.datetime.now().astimezone()).total_seconds()
+                        en, ar = prayer.NAMES[name]
+                        parts.append(f"{en} {ar} {_hm(at)} · in {_span(left)}")
+                line = "  next: " + "   ".join(parts) if parts else ""
+                with out_lock:
+                    if line != status["line"]:
+                        sys.stdout.write("\r\033[K" + pm(line, "bold"))
+                        sys.stdout.flush()
+                        status["line"] = line
+            time.sleep(1)
+    except KeyboardInterrupt:
+        with out_lock:
+            print(("\r\033[K" if tty else "") + pm("  stopped.", "brand"), flush=True)
+        return EXIT_OK
+    finally:
+        for t in timers:
+            t.stop()
+
+
+def do_watch_mode(pm: ui.Palette, args, selectors: list[str]) -> int | None:
+    """Handle the adhan/salawat options; None if none of them was given."""
+    if args.stop:
+        pid = service.stop()
+        print(pm(f"stopped the background watcher (pid {pid})", "green") if pid
+              else pm("nothing is running in the background", "brand"))
+        if service.autostart_state() == "active":
+            print(pm(f"the autostart service is still on; remove it with "
+                     f"'{PROG} --autostart off'", "yellow"))
+        return EXIT_OK
+    if args.status:
+        return show_status(pm)
+    if args.cities:
+        show_cities(pm)
+        return EXIT_OK
+    if args.times is not None:
+        return show_times(pm, args.times or None)
+    if args.autostart == "off":
+        try:
+            removed = service.disable_autostart()
+        except service.ServiceError as exc:
+            return die(pm, str(exc), EXIT_FAIL)
+        print(pm("autostart removed" if removed else "autostart was not on", "green"))
+        return EXIT_OK
+
+    watching = args.adhan or args.salawat is not None
+    if not watching:
+        if args.background or args.autostart is not None:
+            return die(pm, "-b and --autostart go with --adhan and/or --salawat, "
+                           f"e.g. '{PROG} --adhan -b'")
+        return None
+    playing = (selectors or args.surah or args.reciter or args.random is not None
+               or args.count or args.download is not None)
+    if playing:
+        return die(pm, "--adhan and --salawat run on their own, separate from the "
+                       f"reciters; start them alone (e.g. '{PROG} --adhan -b') and "
+                       "play surahs in another command")
+
+    argv = _watch_args(args)
+    if isinstance(argv, str):
+        return die(pm, argv)
+    try:
+        if args.autostart is not None:
+            unit = service.enable_autostart(argv)
+            print(pm(f"autostart on: '{PROG} {' '.join(argv)}' now runs at every login",
+                     "green"))
+            print(pm(f"  {unit}", "brand"))
+            print(pm(f"  check it with '{PROG} --status', remove it with "
+                     f"'{PROG} --autostart off'", "brand"))
+            return EXIT_OK
+        if args.background:
+            # fetch the clips now, so a missing one is reported here and
+            # not only in the log
+            if args.adhan:
+                adhan.clip_path()
+            if args.salawat is not None:
+                salawat.clip_path()
+            pid = service.start(argv)
+            print(pm(f"running in the background (pid {pid}): {PROG} {' '.join(argv)}",
+                     "green"))
+            print(pm(f"  stop it with '{PROG} --stop', see it with '{PROG} --status'",
+                     "brand"))
+            return EXIT_OK
+    except (service.ServiceError, adhan.AdhanError, salawat.SalawatError) as exc:
+        return die(pm, str(exc), EXIT_FAIL)
+    return run_watch(pm, args)
 
 
 # ---------------------------------------------------------------------------
@@ -741,6 +975,9 @@ def _main(argv: list[str] | None = None) -> int:
         return EXIT_OK
     if getattr(args, "remove_voice", None):
         return do_remove_voice(pm, catalog(), args.remove_voice)
+    rc = do_watch_mode(pm, args, selectors)
+    if rc is not None:
+        return rc
 
     cat = catalog()
 
