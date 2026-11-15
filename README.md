@@ -172,6 +172,37 @@ raddu -baqara -sud --download ~/Music/Quran/
 
 ---
 
+### Salawat reminder
+
+While a surah plays, `raddu` can pause every few minutes for salawat on the
+Prophet ﷺ, then carry on exactly where the recitation stopped:
+
+```bash
+raddu -kahf --salawat          # every 10 minutes
+raddu -kahf --salawat 5        # every 5 minutes
+raddu --set salawat=10         # always, without typing --salawat
+raddu -kahf --no-salawat       # skip it for one run
+raddu --set salawat=off        # turn the saved reminder off
+```
+
+The recitation is **paused, not talked over**: the player is suspended while
+the clip plays and resumed afterwards, so nothing is skipped. The default clip
+is a real recording — Surah Al-Ahzab 33:56, *"Indeed Allah and His angels send
+blessings upon the Prophet. O you who believe, send blessings upon him and
+greet him with peace"*, recited by Mishary al-Afasy (from
+[everyayah.com](https://everyayah.com)). It is downloaded once and cached, so
+the reminder works offline afterwards.
+
+To hear a different salawat — for example *اللهم صل وسلم على نبينا محمد* in a
+voice you like — point `raddu` at your own audio file:
+
+```bash
+raddu --set salawat_file=~/audio/salawat.mp3
+raddu --set salawat_file=clear      # back to the built-in clip
+```
+
+---
+
 ## The voices
 
 | code | reciter | default | alternates |
@@ -286,6 +317,13 @@ raddu --set reciter=clear      # back to the built-in default
 | `--offline-list` | list voices and surahs installed offline |
 | `--remove-voice VOICE` | remove an offline installed voice |
 
+### Salawat reminder
+
+| option | meaning |
+|---|---|
+| `--salawat [MIN]` | pause every `MIN` minutes (default 10) for salawat, then resume |
+| `--no-salawat` | turn the reminder off for this run, even if saved |
+
 ### Output
 
 | option | meaning |
@@ -316,6 +354,8 @@ raddu --set reciter=sud
 raddu --set style=hafs
 raddu --set player=mpv
 raddu --set storage=~/.local/share/raddu/voices   # custom offline storage path
+raddu --set salawat=10                            # salawat reminder, in minutes (or off)
+raddu --set salawat_file=~/audio/salawat.mp3      # your own salawat clip
 raddu --config
 ```
 
@@ -358,9 +398,10 @@ src/raddu/
   cli.py               argument parsing, planning, dispatch
   catalog.py           surah/reciter lookup and URL resolution
   data/surahs.json     114 surahs + 448 aliases
-  data/reciters.json   20 voices + 32 recitation styles
+  data/reciters.json   22 voices + 34 recitation styles
   net.py               HTTP streaming and probing
   player.py            player detection and playback
+  salawat.py           timed salawat reminder (pause, clip, resume)
   ui.py                colours, tables, progress bar
   config.py            ~/.config/raddu/config.json
 tools/sync_catalog.py  regenerates the JSON data from the upstream APIs
@@ -397,6 +438,7 @@ tests/smoke.sh --offline    # skip network tests
 
 * Recitation audio and surah listings: [mp3quran.net](https://mp3quran.net),
   [Way2Quran](https://way2quran.com)
+* Salawat reminder clip (Al-Ahzab 33:56, al-Afasy): [everyayah.com](https://everyayah.com)
 * Surah metadata: [alquran.cloud](https://alquran.cloud)
 * Credit goes to every reciter named above, and to the many people who
   recorded, digitised and hosted these recitations. May it be accepted.
