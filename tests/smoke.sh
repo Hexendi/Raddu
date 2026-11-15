@@ -76,6 +76,13 @@ expect_eq "luh  (Muhammad al-Luhaidan)" "https://cdn.mp3quran.net/audio/muhammad
                                   "$("$RADDU" -naas -luh --url 2>/dev/null)"
 expect_eq "kha  (Mohammad Khalil al-Qari)" "https://cdn.mp3quran.net/audio/muhammad-khalil/r1/114.mp3" \
                                   "$("$RADDU" -naas -kha --url 2>/dev/null)"
+expect_eq "isl  (Islam Sobhi)" "https://cdn.mp3quran.net/audio/islam-sobhi/r1/018.mp3" \
+                                  "$("$RADDU" -kahf -isl --url 2>/dev/null)"
+expect_eq "kml  (Abdullah Kamel)" "https://cdn.mp3quran.net/audio/abdullah-kamel/r1/036.mp3" \
+                                  "$("$RADDU" -yaseen -kamel --url 2>/dev/null)"
+expect_contains "isl gaps are reported" "109/114" "$RADDU" -saaffaat -isl --url
+expect_eq "-d isl plans 109 surahs" "109" \
+          "$("$RADDU" -d isl --url 2>/dev/null | wc -l | tr -d ' ')"
 expect_eq "long alias 'lhaydan' still resolves" "https://cdn.mp3quran.net/audio/muhammad-luhaidan/r1/114.mp3" \
                                   "$("$RADDU" -naas -lhaydan --url 2>/dev/null)"
 expect_eq "bilal (Mauritanian, way2quran)" "https://media.way2quran.com/al-nagy-wild-bilal/qalun-an-nafi/114.mp3" \

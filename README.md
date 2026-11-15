@@ -189,6 +189,8 @@ raddu -baqara -sud --download ~/Music/Quran/
 | `haz` | Hazzaa al-Balushi | Hafs an Asim | 91/114 — see below |
 | `luh` | Muhammad al-Luhaidan | Hafs an Asim | — |
 | `kha` | Mohammad Khalil al-Qari | Hafs an Asim | — |
+| `isl` | Islam Sobhi | Hafs an Asim | 109/114 — see below |
+| `kml` | Abdullah Kamel | Hafs an Asim | — |
 
 ### Mauritanian voices
 
@@ -234,8 +236,11 @@ recording (available 91/114; missing 2, 3, 4, 5, 7, 9 ...). Hazzaa al-Balushi
 has no other recording - see 'raddu -R' for a reciter that covers all 114.
 ```
 
-`haz` is the only one with gaps today (surahs 2, 3, 4, 5, 7, 9, 10, 11, 16, 23,
-24, 26, 27, 28, 33, 48, 56, 58, 59, 60, 62, 64, 65, 66 are absent upstream).
+Two voices have gaps today:
+
+* `haz` — surahs 2, 3, 4, 5, 7, 9, 10, 11, 16, 23, 24, 26, 27, 28, 33, 48, 56,
+  58, 59, 60, 62, 64, 65, 66 are absent upstream.
+* `isl` — surahs 37, 39, 40, 45, 65 are absent upstream.
 
 ### Choosing a default voice
 
