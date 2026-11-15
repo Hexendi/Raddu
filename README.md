@@ -172,34 +172,88 @@ raddu -baqara -sud --download ~/Music/Quran/
 
 ---
 
-### Salawat reminder
+## Adhan & salawat
 
-While a surah plays, `raddu` can pause every few minutes for salawat on the
-Prophet ﷺ, then carry on exactly where the recitation stopped:
+Two stand-alone modes, **separate from the reciters**: start one, and it waits
+and plays at the right moment, for as long as it runs — in a terminal, in the
+background, or by itself at every login.
+
+### Adhan at prayer time
 
 ```bash
-raddu -kahf --salawat          # every 10 minutes
-raddu -kahf --salawat 5        # every 5 minutes
-raddu --set salawat=10         # always, without typing --salawat
-raddu -kahf --no-salawat       # skip it for one run
-raddu --set salawat=off        # turn the saved reminder off
+raddu --adhan                  # wait, and call the adhan at each of the five prayers
+raddu --times                  # today's prayer times
+raddu --cities                 # the built-in places
+raddu --set location=nouadhibou
+raddu --set location=18.0858,-15.9785   # anywhere else, as lat,lon
 ```
 
-The recitation is **paused, not talked over**: the player is suspended while
-the clip plays and resumed afterwards, so nothing is skipped. The default clip
-is a real recording — Surah Al-Ahzab 33:56, *"Indeed Allah and His angels send
-blessings upon the Prophet. O you who believe, send blessings upon him and
-greet him with peace"*, recited by Mishary al-Afasy (from
-[everyayah.com](https://everyayah.com)). It is downloaded once and cached, so
-the reminder works offline afterwards.
+The location is **Nouakchott** unless you change it. Fifteen Mauritanian
+towns are built in (Nouakchott, Nouadhibou, Rosso, Kaédi, Kiffa, Aleg, Atar,
+Zouérat, Akjoujt, Tidjikja, Ayoun el Atrous, Néma, Sélibaby, Boutilimit,
+Chinguetti), along with Makkah, Madinah, Cairo, Dakar, Rabat and other cities.
+Anywhere else works as `lat,lon`. A watcher that is already running picks up
+a new location by itself.
 
-To hear a different salawat — for example *اللهم صل وسلم على نبينا محمد* in a
-voice you like — point `raddu` at your own audio file:
+Prayer times are **calculated on your computer** from the position of the
+sun, so they need no internet and no account. They match the published
+timetables (aladhan.com) to within a minute or two. Each place comes with its
+usual method. You can change it:
+
+```bash
+raddu --set method=makkah      # mwl, makkah, egypt, morocco, karachi, isna, gulf
+raddu --set asr=hanafi         # standard (Maliki, Shafi'i, Hanbali) or hanafi
+```
+
+Times are shown in the computer's own time zone.
+
+The adhan is the recording by **Sabah Fakhri** (1985), which is in the public
+domain ([Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Call_to_prayer_by_Sabah_Fakhry.mp3)).
+It is downloaded the first time and then works offline. To use another adhan:
+
+```bash
+raddu --set adhan_file=~/audio/adhan.mp3
+raddu --set adhan_file=clear   # back to the built-in one
+```
+
+If the computer was asleep when a prayer time passed, the adhan is still called
+if it wakes up within three minutes. After that, it waits for the next prayer.
+
+### Salawat on the Prophet ﷺ
+
+```bash
+raddu --salawat                # every 10 minutes
+raddu --salawat 5              # every 5 minutes
+raddu --set salawat=15         # make 15 the default for a bare --salawat
+```
+
+The default clip is a real recording, Surah Al-Ahzab 33:56: *"Indeed Allah
+and His angels send blessings upon the Prophet. O you who believe, send
+blessings upon him and greet him with peace."* It is recited by Mishary
+al-Afasy and comes from [everyayah.com](https://everyayah.com). To hear a
+different salawat, such as *اللهم صل وسلم على نبينا محمد* in a voice you like,
+use your own file:
 
 ```bash
 raddu --set salawat_file=~/audio/salawat.mp3
-raddu --set salawat_file=clear      # back to the built-in clip
 ```
+
+### In the background, or at every login
+
+```bash
+raddu --adhan --salawat 10     # both together, in this terminal
+raddu --adhan --salawat 10 -b  # the same, in the background
+raddu --status                 # what runs, and the next prayer
+raddu --stop                   # stop the background one
+
+raddu --adhan --salawat 10 --autostart   # start by itself at every login
+raddu --autostart off                    # undo that
+```
+
+`-b` detaches from the terminal and logs to `~/.local/share/raddu/raddu.log`.
+`--autostart` installs a systemd user service (`~/.config/systemd/user/raddu.service`)
+that starts at login and restarts if it ever stops. The adhan and the salawat
+never play over each other: if both are due, one waits for the other.
 
 ---
 
@@ -317,12 +371,18 @@ raddu --set reciter=clear      # back to the built-in default
 | `--offline-list` | list voices and surahs installed offline |
 | `--remove-voice VOICE` | remove an offline installed voice |
 
-### Salawat reminder
+### Adhan & salawat
 
 | option | meaning |
 |---|---|
-| `--salawat [MIN]` | pause every `MIN` minutes (default 10) for salawat, then resume |
-| `--no-salawat` | turn the reminder off for this run, even if saved |
+| `--adhan` | wait, and call the adhan at each prayer time |
+| `--salawat [MIN]` | salawat on the Prophet every `MIN` minutes (default 10) |
+| `-b`, `--background` | run `--adhan` / `--salawat` in the background |
+| `--autostart [off]` | start `--adhan` / `--salawat` at every login (systemd) |
+| `--status` | show what runs in the background and the next prayer |
+| `--stop` | stop the background one |
+| `--times [PLACE]` | today's prayer times |
+| `--cities` | the built-in places for `--set location` |
 
 ### Output
 
@@ -354,7 +414,11 @@ raddu --set reciter=sud
 raddu --set style=hafs
 raddu --set player=mpv
 raddu --set storage=~/.local/share/raddu/voices   # custom offline storage path
-raddu --set salawat=10                            # salawat reminder, in minutes (or off)
+raddu --set location=nouakchott                   # prayer times: a place, or lat,lon
+raddu --set method=mwl                            # mwl, makkah, egypt, morocco, karachi, isna, gulf
+raddu --set asr=standard                          # or hanafi
+raddu --set adhan_file=~/audio/adhan.mp3          # your own adhan
+raddu --set salawat=10                            # default interval for --salawat
 raddu --set salawat_file=~/audio/salawat.mp3      # your own salawat clip
 raddu --config
 ```
@@ -401,7 +465,11 @@ src/raddu/
   data/reciters.json   22 voices + 34 recitation styles
   net.py               HTTP streaming and probing
   player.py            player detection and playback
-  salawat.py           timed salawat reminder (pause, clip, resume)
+  prayer.py            prayer times from the sun's position; built-in places
+  adhan.py             --adhan: call the adhan at each prayer time
+  salawat.py           --salawat: salawat every N minutes
+  interlude.py         shared clip timer and clip cache for the two above
+  service.py           -b background runner and --autostart (systemd)
   ui.py                colours, tables, progress bar
   config.py            ~/.config/raddu/config.json
 tools/sync_catalog.py  regenerates the JSON data from the upstream APIs
@@ -438,7 +506,8 @@ tests/smoke.sh --offline    # skip network tests
 
 * Recitation audio and surah listings: [mp3quran.net](https://mp3quran.net),
   [Way2Quran](https://way2quran.com)
-* Salawat reminder clip (Al-Ahzab 33:56, al-Afasy): [everyayah.com](https://everyayah.com)
+* Salawat clip (Al-Ahzab 33:56, al-Afasy): [everyayah.com](https://everyayah.com)
+* Adhan by Sabah Fakhri (public domain): [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Call_to_prayer_by_Sabah_Fakhry.mp3)
 * Surah metadata: [alquran.cloud](https://alquran.cloud)
 * Credit goes to every reciter named above, and to the many people who
   recorded, digitised and hosted these recitations. May it be accepted.
