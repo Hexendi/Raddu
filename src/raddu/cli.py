@@ -11,7 +11,7 @@ import signal
 import sys
 
 from . import __version__, config, net, player as player_mod, storage, ui
-from .catalog import CatalogError, catalog, Reciter, Surah
+from .catalog import CatalogError, catalog, Reciter, Surah, Track
 
 PROG = "raddu"
 
@@ -485,7 +485,9 @@ def do_check(pm: ui.Palette, cat, args, planned: list, user_selected: bool) -> i
         if key in seen:
             continue
         seen.add(key)
-        url = f"{style.server}{surah.number:03d}.mp3"
+        # The track knows the exact upstream filename; Way2Quran does not
+        # zero-pad uniformly, so building "{n:03d}.mp3" here gave false 404s.
+        url = Track(surah, rec, style).url
         try:
             size = net.probe(url)
             ok += 1

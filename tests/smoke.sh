@@ -241,6 +241,11 @@ else
     bad "--check reports reachable audio" "reachable" "$(echo "$out" | tail -2)"
   fi
   expect_contains "a known URL is reachable" "OK" "$RADDU" --check sud
+  # regression: --check built "002.mp3" itself and ignored the exact
+  # Way2Quran filename, reporting a false 404 for Al-Baqara by bilal
+  out="$("$RADDU" --check -baqara -bilal --no-banner 2>&1)"
+  [[ "$out" == *"1 reachable"* && "$out" != *FAIL* ]] && ok "--check uses the exact way2quran filename" \
+    || bad "--check uses the exact way2quran filename" "1 reachable" "$(echo "$out" | tail -1)"
 
   tmp="$(mktemp -d)"
   if "$RADDU" -naas -sud --download "$tmp" >/dev/null 2>&1; then
