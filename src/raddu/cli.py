@@ -53,6 +53,14 @@ OPTIONAL_VALUE_OPTS = frozenset({
 
 ReciterSpec = tuple["Reciter", "str | None"]
 
+# ISO country code -> flag and demonym shown next to a voice
+NATIONALITY = {"MR": "🇲🇷 Mauritanian", "SA": "🇸🇦 Saudi", "EG": "🇪🇬 Egyptian",
+               "SD": "🇸🇩 Sudanese", "MA": "🇲🇦 Moroccan", "LY": "🇱🇾 Libyan",
+               "QA": "🇶🇦 Qatari", "KW": "🇰🇼 Kuwaiti", "JO": "🇯🇴 Jordanian",
+               "PS": "🇵🇸 Palestinian", "TR": "🇹🇷 Turkish", "ID": "🇮🇩 Indonesian",
+               "IN": "🇮🇳 Indian", "PK": "🇵🇰 Pakistani", "DZ": "🇩🇿 Algerian",
+               "TN": "🇹🇳 Tunisian", "IQ": "🇮🇶 Iraqi", "YE": "🇾🇪 Yemeni"}
+
 
 # ---------------------------------------------------------------------------
 # argv pre-scan
@@ -158,7 +166,8 @@ def build_epilog(pm: ui.Palette) -> str:
     ):
         L.append("  " + line)
     L.append("")
-    L.append("Audio is streamed from mp3quran.net as one continuous MP3 per surah.")
+    L.append("Audio is streamed from mp3quran.net and way2quran.com as one "
+             "continuous MP3 per surah.")
     return "\n".join(L)
 
 
@@ -323,16 +332,10 @@ def build_plan(pm: ui.Palette, cat, args, surahs, reciters) -> list:
 # information views
 # ---------------------------------------------------------------------------
 def show_reciters(pm: ui.Palette) -> None:
-    flags = {"MR": "🇲🇷 Mauritanian", "SA": "🇸🇦 Saudi", "EG": "🇪🇬 Egyptian",
-             "SD": "🇸🇩 Sudanese", "MA": "🇲🇦 Moroccan", "LY": "🇱🇾 Libyan",
-             "QA": "🇶🇦 Qatari", "KW": "🇰🇼 Kuwaiti", "JO": "🇯🇴 Jordanian",
-             "PS": "🇵🇸 Palestinian", "TR": "🇹🇷 Turkish", "ID": "🇮🇩 Indonesian",
-             "IN": "🇮🇳 Indian", "PK": "🇵🇰 Pakistani", "DZ": "🇩🇿 Algerian",
-             "TN": "🇹🇳 Tunisian", "IQ": "🇮🇶 Iraqi", "YE": "🇾🇪 Yemeni"}
     rows = []
     for r in catalog().reciters:
         alts = ", ".join(s.code for s in r.styles if s.code != r.default_style) or "-"
-        where = flags.get(r.nationality or "", r.nationality or "")
+        where = NATIONALITY.get(r.nationality or "", r.nationality or "")
         rows.append([r.code, r.name_en, r.name_ar, r.default_label_en, alts, where])
     ui.table(pm, ["code", "reciter", "بالاسم", "default", "alt styles", "from"],
              rows, aligns=["l", "l", "l", "l", "l", "l"])
@@ -459,7 +462,8 @@ def describe_track(pm: ui.Palette, track) -> None:
         ("", f"{s.meaning_en} · {s.ayahs} ayahs · {s.revelation.capitalize()}"),
         ("", ""),
         ("VOICE", voice_val),
-        ("", f"{style}" + (f"   🇲🇷 {r.nationality}" if r.nationality else "")),
+        ("", f"{style}" + (f"   {NATIONALITY.get(r.nationality, r.nationality)}"
+                           if r.nationality else "")),
         ("", ""),
         ("SOURCE", source_val),
     ])
