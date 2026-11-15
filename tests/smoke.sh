@@ -128,6 +128,58 @@ sys.exit(0)
 PY
 then ok "file-based players close cleanly"; else bad "file-based players close cleanly" "clean exit" "raised"; fi
 
+head_ "salawat reminder"
+if [[ -d /proc/self ]]; then
+if PYTHONPATH="$ROOT/src" python3 - <<'PY'
+import pathlib, subprocess, sys, tempfile, time
+from raddu import salawat
+from raddu.player import PlayerSpec
+
+def state(pid):
+    return pathlib.Path(f"/proc/{pid}/stat").read_text().split(")")[1].split()[0]
+
+clip = pathlib.Path(tempfile.mkdtemp()) / "clip.mp3"
+clip.write_bytes(b"x" * 1000)
+# the "clip player" swallows the clip, then lasts long enough to observe
+spec = PlayerSpec("fake", "sh", ("-c", "cat >/dev/null; sleep 0.6"))
+recitation = subprocess.Popen(["sleep", "30"])
+
+class S: proc = recitation
+class V: title = "Al-Kahf"
+v = V()
+r = salawat.Reminder(spec, clip, minutes=0.3 / 60)   # every 0.3 s
+r.attach(S(), v)
+r.start()
+seen_paused = seen_label = False
+deadline = time.time() + 3
+while time.time() < deadline and r.played < 1:
+    if state(recitation.pid) == "T":
+        seen_paused = True
+    if v.title == salawat.LABEL:
+        seen_label = True
+    time.sleep(0.02)
+r.stop()
+time.sleep(0.05)
+assert r.played >= 1, "clip never played"
+assert seen_paused, "recitation was not paused during the clip"
+assert seen_label, "visualizer was not relabelled"
+assert state(recitation.pid) != "T", "recitation was left paused"
+assert v.title == "Al-Kahf", "title not restored"
+recitation.kill()
+
+for good, want in (("10", 10.0), ("2.5", 2.5), ("15m", 15.0), ("off", None), (None, None)):
+    assert salawat.parse_minutes(good) == want, good
+for badv in ("-1", "0.0", "soon"):
+    try: salawat.parse_minutes(badv)
+    except salawat.SalawatError: pass
+    else: raise AssertionError(badv)
+sys.exit(0)
+PY
+then ok "salawat pauses the recitation, plays the clip, resumes"; else bad "salawat pauses the recitation, plays the clip, resumes" "clean exit" "raised"; fi
+else
+  printf '  %sSKIP%s salawat pause test (needs /proc)\n' "$c_d" "$c_0"
+fi
+
 head_ "visualizer"
 if PYTHONPATH="$ROOT/src" python3 - <<'PY'
 import sys

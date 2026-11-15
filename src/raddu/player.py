@@ -10,6 +10,7 @@ from __future__ import annotations
 import os
 import pathlib
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -244,6 +245,13 @@ class Session:
     def stop(self) -> None:
         self._drop_stdin()
         if self.proc and self.proc.poll() is None:
+            # The salawat reminder may have paused the player with SIGSTOP;
+            # a stopped process does not act on SIGTERM until continued.
+            if hasattr(signal, "SIGCONT"):
+                try:
+                    os.kill(self.proc.pid, signal.SIGCONT)
+                except OSError:
+                    pass
             self.proc.terminate()
             try:
                 self.proc.wait(timeout=3)
