@@ -35,6 +35,13 @@ expect_contains() { # desc needle cmd...
 }
 
 command -v python3 >/dev/null || { echo "python3 is required"; exit 1; }
+
+# Run against an empty config and data dir, so a saved default voice, a
+# custom storage path or an installed offline library on this machine can
+# neither change the results nor be modified by the suite.
+SANDBOX="$(mktemp -d)"
+trap 'rm -rf "$SANDBOX"' EXIT
+export XDG_CONFIG_HOME="$SANDBOX/config" XDG_DATA_HOME="$SANDBOX/data"
 [[ -x "$RADDU" ]] || { echo "missing $RADDU"; exit 1; }
 
 head_ "version"
@@ -191,8 +198,7 @@ case "$out" in
 esac
 
 head_ "configuration"
-cfgdir="${XDG_CONFIG_HOME:-/tmp/opencode/raddu-test-config}"
-rm -rf "$cfgdir"; mkdir -p "$cfgdir"
+cfgdir="$(mktemp -d)"
 out="$(XDG_CONFIG_HOME="$cfgdir" "$RADDU" --set reciter=hus 2>&1)"
 if [[ "$out" == *reciter* ]]; then ok "--set saves a setting"; else bad "--set saves a setting" "reciter" "$out"; fi
 expect_eq "saved setting is honoured" "https://cdn.mp3quran.net/audio/mahmoud-husary/r1/002.mp3" \
@@ -209,11 +215,15 @@ expect_eq "-d sud plans 114 surahs" "114" \
           "$("$RADDU" -d sud --url 2>/dev/null | wc -l | tr -d ' ')"
 expect_eq "-d haz plans 91 surahs" "91" \
           "$("$RADDU" -d haz --url 2>/dev/null | wc -l | tr -d ' ')"
-expect_rc "--offline fails cleanly when missing" 2 "$RADDU" -baqara -sud --offline
-expect_contains "--offline-list reports empty when none" "no voices" "$RADDU" --offline-list
+# Use a throwaway data dir: the user's real offline library must neither
+# skew these checks nor be touched by them.
+datadir="$(mktemp -d)"
+expect_rc "--offline fails cleanly when missing" 2 \
+          env XDG_DATA_HOME="$datadir" "$RADDU" -baqara -sud --offline
+expect_contains "--offline-list reports empty when none" "no voices" \
+          env XDG_DATA_HOME="$datadir" "$RADDU" --offline-list
 
-datadir="${XDG_DATA_HOME:-/tmp/opencode/raddu-test-data}"
-rm -rf "$datadir"; mkdir -p "$datadir/raddu/voices/sud/hafs"
+mkdir -p "$datadir/raddu/voices/sud/hafs"
 # simulate an offline cached surah
 echo "dummy-audio" > "$datadir/raddu/voices/sud/hafs/114-naas.mp3"
 expect_eq "--offline --url resolves local file when present" \
