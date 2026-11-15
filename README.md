@@ -227,12 +227,11 @@ raddu --salawat 5              # every 5 minutes
 raddu --set salawat=15         # make 15 the default for a bare --salawat
 ```
 
-The default clip is a real recording, Surah Al-Ahzab 33:56: *"Indeed Allah
-and His angels send blessings upon the Prophet. O you who believe, send
-blessings upon him and greet him with peace."* It is recited by Mishary
-al-Afasy and comes from [everyayah.com](https://everyayah.com). To hear a
-different salawat, such as *اللهم صل وسلم على نبينا محمد* in a voice you like,
-use your own file:
+The default clip is short and simple, about four seconds: a real voice saying
+*صلي على محمد ﷺ*, from the
+[Internet Archive](https://archive.org/details/100-.-salawat-repeated-100-times-1).
+To hear a different salawat, such as *اللهم صل وسلم على نبينا محمد*
+in a voice you like, use your own file:
 
 ```bash
 raddu --set salawat_file=~/audio/salawat.mp3
@@ -506,7 +505,7 @@ tests/smoke.sh --offline    # skip network tests
 
 * Recitation audio and surah listings: [mp3quran.net](https://mp3quran.net),
   [Way2Quran](https://way2quran.com)
-* Salawat clip (Al-Ahzab 33:56, al-Afasy): [everyayah.com](https://everyayah.com)
+* Salawat clip «صلي على محمد ﷺ»: [Internet Archive](https://archive.org/details/100-.-salawat-repeated-100-times-1)
 * Adhan by Sabah Fakhri (public domain): [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Call_to_prayer_by_Sabah_Fakhry.mp3)
 * Surah metadata: [alquran.cloud](https://alquran.cloud)
 * Credit goes to every reciter named above, and to the many people who

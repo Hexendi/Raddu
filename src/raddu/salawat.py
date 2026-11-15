@@ -4,13 +4,11 @@ A stand-alone mode, separate from the reciters: ``raddu --salawat 10``
 plays a short Arabic clip every ten minutes until stopped, in the
 foreground or in the background (``-b``).
 
-The default clip is a real recording, not generated audio: Surah
-Al-Ahzab 33:56 - "Indeed Allah and His angels send blessings upon the
-Prophet. O you who believe, send blessings upon him and greet him with
-peace" - recited by Mishary Rashid al-Afasy, served by everyayah.com. It
-is fetched once and cached. Any other clip (for example
-"اللهم صل وسلم على نبينا محمد" in a voice you like) can be used instead
-with ``raddu --set salawat_file=PATH``.
+The default clip is short and simple: a real voice saying
+"صلي على محمد ﷺ" (about four seconds), from the Internet Archive. It is
+fetched once and cached. Any other clip
+(for example "اللهم صل وسلم على نبينا محمد" in a voice you like) can be
+used instead with ``raddu --set salawat_file=PATH``.
 """
 
 from __future__ import annotations
@@ -21,9 +19,10 @@ from . import config
 from .interlude import OFF_WORDS, ClipError, Timer, fetch_clip
 
 DEFAULT_MINUTES = 10.0
-CLIP_URL = "https://everyayah.com/data/Alafasy_128kbps/033056.mp3"
-CLIP_NAME = "salawat-alafasy-033056.mp3"
-LABEL = "ﷺ  اللهم صل وسلم على نبينا محمد"
+CLIP_URL = ("https://archive.org/download/100-.-salawat-repeated-100-times-1/"
+            "%D9%86%D8%BA%D9%85%D8%A9%20%20%D8%B5%D9%84%D9%8A%20%D8%B9%D9%84%D9%89%20%D9%85%D8%AD%D9%85%D8%AF%20%EF%B7%BA.mp3")
+CLIP_NAME = "salawat-salli-ala-muhammad.mp3"
+LABEL = "ﷺ  صلي على محمد"
 
 
 class SalawatError(Exception):
